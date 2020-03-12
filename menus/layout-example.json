@@ -1,0 +1,18 @@
+{
+  "menu": [
+    {
+      "label": "Plugins",
+      "submenu": [
+        {
+          "label": "sidetoc",
+          "submenu": [
+            {
+              "label": "Toggle SideToc",
+              "command": "sidetoc:toggle-sidetoc"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
