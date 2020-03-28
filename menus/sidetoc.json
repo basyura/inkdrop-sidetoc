@@ -8,7 +8,7 @@
           "submenu": [
             {
               "label": "Toggle SideToc",
-              "command": "sidetoc:toggle-sidetoc"
+              "command": "sidetoc:sidetoc-toggle"
             }
           ]
         }
