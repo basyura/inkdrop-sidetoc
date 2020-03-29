@@ -3,6 +3,13 @@
 
 ![Screenshot](https://raw.githubusercontent.com/basyura/inkdrop-sidetoc/master/images/screenshot.png)
 
+## Settings
+
+|       key       | default |
+| --------------- | ------- |
+| highlight color | #C5EAFB |
+| side pane width | 200     |
+
 ## ToDo
 
 * [ ] 入力のたびに再描画が走る
