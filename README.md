@@ -1,14 +1,36 @@
 # Inkdrop SideToc Plugin
 
+Provides Side TOC.
 
 ![Screenshot](https://raw.githubusercontent.com/basyura/inkdrop-sidetoc/master/images/screenshot.png)
 
+## Features
+
+- Show TOC of headers.
+- Hightlight current header.
+  - Follow cursor movement and scroll
+- Jump to header on click.
+
+## Install
+
+```
+ipm install sidetoc
+```
+
 ## Settings
 
-|       key       | default |
-| --------------- | ------- |
-| highlight color | #C5EAFB |
-| side pane width | 200     |
+|       key      | default |
+| -------------- | ------- |
+| highlightColor | #C5EAFB |
+| width          | 200     |
+
+config.json
+
+```cson
+sidetoc:
+  highlightColor: "#C5EAFB"
+  width: 200
+```
 
 ## ToDo
 
@@ -16,7 +38,7 @@
   - 保存時に反映するだけにしたいが API が無い？
   - 処理時間は 0 〜 2ms なので問題はなさそう 
 * [ ] セクション移動 (リンク、ショートカットキー)
-* [ ] プレビュー時は表示しない
+* [ ] プレビュー時のハイライト表示
 
 ### Done
   
