@@ -24,7 +24,7 @@ ipm install sidetoc
 | highlightColor | #C5EAFB |
 | width          | 200     |
 
-config.json
+config.cson
 
 ```cson
 sidetoc:
