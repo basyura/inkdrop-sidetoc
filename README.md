@@ -7,7 +7,7 @@ Provides Side TOC.
 ## Features
 
 - Show TOC of headers.
-- Hightlight current header.
+- Highlight current header.
   - Follow cursor movement and scroll
 - Toggle side toc pane.
 - Jump to header on click.
