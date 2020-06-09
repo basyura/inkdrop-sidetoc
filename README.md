@@ -53,6 +53,12 @@ sidetoc:
 
 ## Changelog
 
+1.6.0 - 2020/06/09
+
+- Scroll content when over flow height.
+- Don't remove component on hiding.
+- Don't show spaces if there is no header.
+
 1.5.0 - 2020/05/09
 
 - Add commands.
@@ -61,23 +67,23 @@ sidetoc:
 - Add cursor style.
 - Fix multiple event registration
 
-  1.4.0 - 2020/05/05
+1.4.0 - 2020/05/05
 
 - Improved highlight header
 
-  1.3.0 - 2020/04/25
+1.3.0 - 2020/04/25
 
 - Fix header regex
 
-  1.2.0 - 2020/04/05
+1.2.0 - 2020/04/05
 
 - improved readme
 
-  1.1.0 - 2020/03/29
+1.1.0 - 2020/03/29
 
 - improved readme
 
-  1.0.0 - 2020/03/29
+1.0.0 - 2020/03/29
 
 - First release!
 
