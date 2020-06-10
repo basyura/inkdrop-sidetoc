@@ -1,7 +1,7 @@
 {
   "name": "sidetoc",
   "main": "./lib/sidetoc",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "side toc",
   "keywords": [],
   "repository": "https://github.com/basyura/inkdrop-sidetoc",
