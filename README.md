@@ -51,6 +51,10 @@ sidetoc:
   width: 200
 ```
 
+## Not supported
+
+* Content in html tags (syntax).
+
 ## Changelog
 
 1.6.0 - 2020/06/09
