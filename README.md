@@ -12,6 +12,7 @@ Provides Side TOC.
 - Toggle side toc pane.
 - Jump to header on click.
 - Jump to next (or previous) header by key.
+- Support Preview Mode (beta).
 
 ## Install
 
@@ -32,6 +33,10 @@ keymap.cson
 ```cson
 'body':
     'ctrl-l': 'sidetoc:sidetoc-toggle'
+    'ctrl-n': 'sidetoc:jump-next'
+    'ctrl-p': 'sidetoc:jump-prev'
+
+'.mde-preview':
     'ctrl-n': 'sidetoc:jump-next'
     'ctrl-p': 'sidetoc:jump-prev'
 ```
