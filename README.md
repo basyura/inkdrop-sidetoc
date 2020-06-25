@@ -12,7 +12,7 @@ Provides Side TOC.
 - Toggle side toc pane.
 - Jump to header on click.
 - Jump to next (or previous) header by key.
-- Support Preview Mode (beta).
+- Support Preview Mode
 
 ## Install
 
@@ -61,6 +61,13 @@ sidetoc:
 * Content in html tags (syntax).
 
 ## Changelog
+
+1.7.0 - 2020/06/25
+
+- Sync highlighted header with preview scroll.
+- Support jumpToNext (Prev) in preview
+- Ignore `#` in CodeBlock 
+  - Content in html tags (syntax) Not supported.
 
 1.6.0 - 2020/06/09
 
