@@ -5,25 +5,25 @@ import * as ripper from "./ripper";
 import dispatcher from "./dispatcher";
 import Settings from "./settings";
 
-const $ = (query:string) => document.querySelector(query);
+const $ = (query: string) => document.querySelector(query);
 
 declare var inkdrop: any;
 
 export default class SideTocPane extends React.Component {
   lastLine: number = -1;
-  noteId:string = "";
-  heightDiff:number = 0;
-  isPreview:boolean = false;
-  previewHeaders:any;
-  previewCurrent:string = "";
-                 // ref to scrollIntoView
-  curSectionRef:any;
-                // for handle event
-  dispatchId:any;
-  state:any;
-  props:any;
-  cursorTime:Date | null = null;
-  observer:MutationObserver | null = null;
+  noteId: string = "";
+  heightDiff: number = 0;
+  isPreview: boolean = false;
+  previewHeaders: any;
+  previewCurrent: string = "";
+  // ref to scrollIntoView
+  curSectionRef: any;
+  // for handle event
+  dispatchId: any;
+  state: any;
+  props: any;
+  cursorTime: Date | null = null;
+  observer: MutationObserver | null = null;
   /*
    *
    */
@@ -115,7 +115,7 @@ export default class SideTocPane extends React.Component {
 
     const style = {
       fontFamily: Settings.fontFamily,
-      height: inkdrop.window.getSize()[1] - this.heightDiff,
+      height: inkdrop.window.getSize()[1] - this.heightDiff
     };
 
     // current header key for preview which join header text with "_".
@@ -123,7 +123,7 @@ export default class SideTocPane extends React.Component {
 
     return (
       <div className={className} style={style}>
-        {this.state.headers.map((v:any) => {
+        {this.state.headers.map((v: any) => {
           current += "_" + v.str;
           const { style, isCurrent } = this.toStyle(v, current);
           let ref = isCurrent ? this.curSectionRef : null;
@@ -144,7 +144,7 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  attatchEvents(editor:any) {
+  attatchEvents(editor: any) {
     // refresh
     this.updateState();
 
@@ -166,11 +166,11 @@ export default class SideTocPane extends React.Component {
     // check initial view mode
     this.isPreview = editorEle!.classList.contains("editor-viewmode-preview");
     // observe preview update
-    this.observer = new MutationObserver((_) =>
+    this.observer = new MutationObserver(_ =>
       this.handlePreviewUpdate(editorEle)
     );
 
-    const node:any = preview;
+    const node: any = preview;
     this.observer.observe(node, { attributes: true, subtree: true });
   }
   /*
@@ -197,7 +197,7 @@ export default class SideTocPane extends React.Component {
     if (editor == null) {
       return;
     }
-    let ret:any = ripper.parse(this.props);
+    let ret: any = ripper.parse(this.props);
     ret["len"] = editor.cm.lineCount();
 
     const newState = Object.assign(option, ret);
@@ -207,7 +207,7 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  updateSection(line:number) {
+  updateSection(line: number) {
     const header = this.getCurrentHeader(line);
     if (header != null && this.state.currentHeader != header) {
       this.commit({ currentHeader: header });
@@ -253,7 +253,7 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  handleCursorActivity = (cm:any) => {
+  handleCursorActivity = (cm: any) => {
     let cur = cm.getCursor();
     if (cur.line == this.lastLine) {
       return;
@@ -265,7 +265,7 @@ export default class SideTocPane extends React.Component {
   /*
    * Handle scrolling and refresh highlight section.
    */
-  handleCmScroll = (cm:any) => {
+  handleCmScroll = (cm: any) => {
     // prioritize handleCursorActivity
     if (
       this.cursorTime != null &&
@@ -344,7 +344,7 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  handlePreviewUpdate = (editorEle:any) => {
+  handlePreviewUpdate = (editorEle: any) => {
     this.isPreview = editorEle.classList.contains("editor-viewmode-preview");
     // skip editor mode
     if (!this.isPreview) {
@@ -354,7 +354,7 @@ export default class SideTocPane extends React.Component {
     this.previewHeaders = [];
 
     const preview = editorEle.querySelector(".mde-preview");
-    preview.querySelectorAll("*").forEach((v:any) => {
+    preview.querySelectorAll("*").forEach((v: any) => {
       if (v.tagName.length == 2 && v.tagName.startsWith("H")) {
         this.previewHeaders.push(v);
       }
@@ -364,7 +364,7 @@ export default class SideTocPane extends React.Component {
   /*
    * Handle preview scroll.
    */
-  handlePreviewScroll = (_:Event) => {
+  handlePreviewScroll = (_: Event) => {
     // skip editor mode
     if (!this.isPreview) {
       return;
@@ -421,7 +421,7 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  handleWindowResize = (_:any) => {
+  handleWindowResize = (_: any) => {
     // Handle size changed.
     if (!this.state.visibility) {
       return;
@@ -432,7 +432,7 @@ export default class SideTocPane extends React.Component {
   /*
    * scroll to header
    */
-  handleClick = (header:any, _:any) => {
+  handleClick = (header: any, _: any) => {
     // for preview mode
     if (this.isPreview) {
       for (let i = 0; i < this.state.headers.length; i++) {
@@ -453,10 +453,10 @@ export default class SideTocPane extends React.Component {
   /*
    * convert to style
    */
-  toStyle = (header:any, current:any) => {
-    let style:any = {
+  toStyle = (header: any, current: any) => {
+    let style: any = {
       marginLeft: 20 * (header.count - this.state.min),
-      cursor: "pointer",
+      cursor: "pointer"
     };
 
     let isCurrent = false;
@@ -478,7 +478,7 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  getCurrentHeader(line:number) {
+  getCurrentHeader(line: number) {
     let len = this.state.headers.length;
     for (let i = 0; i < len; i++) {
       let header = this.state.headers[i];
@@ -494,7 +494,7 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  getPrevHeader(header:any, line:any) {
+  getPrevHeader(header: any, line: any) {
     if (header == null) {
       return null;
     }
@@ -517,7 +517,7 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  getNextHeader(header:any, _:any) {
+  getNextHeader(header: any, _: any) {
     if (header == null) {
       // jump to first header
       return this.state.headers.length > 0 ? this.state.headers[0] : null;
@@ -532,14 +532,14 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  commit(state:any) {
+  commit(state: any) {
     this.log(() => "★★★ commit");
     this.setState(state);
   }
   /*
    *
    */
-  log(_:any) {
+  log(_: any) {
     //console.log(`sidetoc: ${fn()}`);
   }
 }

@@ -2,18 +2,18 @@
 /*
  * extract # headers
  */
-export function parse(props:any) {
+export function parse(props: any) {
   // section list which starting with #.
-  let headers:any[] = [];
+  let headers: any[] = [];
   // minimum section level
   let min = 999;
   let row = -1;
-  let before:any = null;
+  let before: any = null;
   let index = 0;
   let isInCodeBlock = false;
   let codeBlockReg = /^\s{0,}```/;
 
-  props.editingNote.body.split("\n").forEach((v:string) => {
+  props.editingNote.body.split("\n").forEach((v: string) => {
     row++;
 
     // skip code block
@@ -40,7 +40,7 @@ export function parse(props:any) {
       count: i,
       str: v.replace(/^#*? /, ""),
       rowStart: row,
-      index: index,
+      index: index
     };
     index++;
     // apply header end row
@@ -63,7 +63,7 @@ export function parse(props:any) {
 /*
  *
  */
-function isValid(v:string) : boolean {
+function isValid(v: string): boolean {
   if (!v.startsWith("#")) {
     return false;
   }
