@@ -14,7 +14,8 @@ export default class SideTocPane extends React.Component {
   noteId: string = "";
   heightDiff: number = 0;
   isPreview: boolean = false;
-  previewHeaders: any;
+  // preview headers. this value is cleared with null when mode change to preview.
+  previewHeaders: Element[] = [];
   previewCurrent: string = "";
   // ref to scrollIntoView
   curSectionRef: any;
@@ -24,12 +25,14 @@ export default class SideTocPane extends React.Component {
   props: any;
   cursorTime: Date | null = null;
   observer: MutationObserver | null = null;
+  firstPreview: boolean = true;
   /*
    *
    */
   componentWillMount() {
     // state of this component
     this.state = { visibility: true, headers: [], min: 0, len: 0 };
+    /*
     // last cursor line
     this.lastLine = -1;
     // current note id
@@ -38,11 +41,10 @@ export default class SideTocPane extends React.Component {
     this.heightDiff = 0;
     // previewMode
     this.isPreview = false;
-    // preview headers. this value is cleared with null when mode change to preview.
-    this.previewHeaders = null;
     // preview current header
     this.previewCurrent = "";
     // ref to scrollIntoView
+    */
     this.curSectionRef = React.createRef();
     // for handle event
     this.dispatchId = dispatcher.register(this.dispachAction.bind(this));
@@ -160,6 +162,10 @@ export default class SideTocPane extends React.Component {
 
     // hook preview scroll
     const editorEle = $(".editor");
+    if (editorEle == null) {
+      return;
+    }
+
     const preview = editorEle!.querySelector(".mde-preview");
     preview!.addEventListener("scroll", this.handlePreviewScroll);
 
@@ -344,7 +350,11 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  handlePreviewUpdate = (editorEle: any) => {
+  handlePreviewUpdate = (editorEle: Element | null) => {
+    if (editorEle == null) {
+      return;
+    }
+
     this.isPreview = editorEle.classList.contains("editor-viewmode-preview");
     // skip editor mode
     if (!this.isPreview) {
@@ -354,7 +364,7 @@ export default class SideTocPane extends React.Component {
     this.previewHeaders = [];
 
     const preview = editorEle.querySelector(".mde-preview");
-    preview.querySelectorAll("*").forEach((v: any) => {
+    preview!.querySelectorAll("*").forEach((v: any) => {
       if (v.tagName.length == 2 && v.tagName.startsWith("H")) {
         this.previewHeaders.push(v);
       }
@@ -371,7 +381,8 @@ export default class SideTocPane extends React.Component {
     }
 
     // for first preview
-    if (this.previewHeaders == null) {
+    if (this.firstPreview) {
+      this.firstPreview = false;
       this.handlePreviewUpdate($(".editor"));
     }
 
@@ -383,7 +394,7 @@ export default class SideTocPane extends React.Component {
         let current = "";
         let k = 0;
         for (k = 0; k <= i; k++) {
-          current += "_" + this.previewHeaders[k].innerText;
+          current += "_" + this.previewHeaders[k].textContent;
         }
         // change preview current
         if (this.previewCurrent != current) {
