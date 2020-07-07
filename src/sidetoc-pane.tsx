@@ -165,19 +165,21 @@ export default class SideTocPane extends React.Component {
     if (editorEle == null) {
       return;
     }
-
-    const preview = editorEle!.querySelector(".mde-preview");
-    preview!.addEventListener("scroll", this.handlePreviewScroll);
+    // preview element
+    const preview = editorEle.querySelector(".mde-preview");
+    if (preview == null) {
+      return;
+    }
+    preview.addEventListener("scroll", this.handlePreviewScroll);
 
     // check initial view mode
-    this.isPreview = editorEle!.classList.contains("editor-viewmode-preview");
+    this.isPreview = editorEle.classList.contains("editor-viewmode-preview");
     // observe preview update
     this.observer = new MutationObserver(_ =>
       this.handlePreviewUpdate(editorEle)
     );
 
-    const node: any = preview;
-    this.observer.observe(node, { attributes: true, subtree: true });
+    this.observer.observe(preview, { attributes: true, subtree: true });
   }
   /*
    *
