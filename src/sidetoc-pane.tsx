@@ -18,9 +18,9 @@ export default class SideTocPane extends React.Component {
   previewHeaders: Element[] = [];
   previewCurrent: string = "";
   // ref to scrollIntoView
-  curSectionRef: any;
+  curSectionRef: React.RefObject<HTMLLIElement> = React.createRef();
   // for handle event
-  dispatchId: any;
+  dispatchId: string = "";
   state: any;
   props: any;
   cursorTime: Date | null = null;
@@ -44,8 +44,8 @@ export default class SideTocPane extends React.Component {
     // preview current header
     this.previewCurrent = "";
     // ref to scrollIntoView
-    */
     this.curSectionRef = React.createRef();
+    */
     // for handle event
     this.dispatchId = dispatcher.register(this.dispachAction.bind(this));
 
