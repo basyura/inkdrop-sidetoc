@@ -3,6 +3,7 @@
 import { CompositeDisposable } from "event-kit";
 import * as SideTocPane from "./sidetoc-pane";
 import dispatcher from "./dispatcher";
+import { DispatchAction } from './types'
 
 const componentName = "SideTocPane";
 const layoutName = "mde";
@@ -27,7 +28,8 @@ class SideTocPlugin {
   }
 
   deactivate() {
-    dispatcher.dispatch({ type: "Deactivate" });
+
+    dispatcher.dispatch(<DispatchAction>{ type: "Deactivate"});
 
     this.subscriptions.dispose();
 
@@ -47,9 +49,9 @@ const show = () => {
 };
 
 /* dispachers */
-const toggle = () => dispatcher.dispatch({ type: "Toggle" });
-const jumpToNext = () => dispatcher.dispatch({ type: "JumpToNext" });
-const jumpToPrev = () => dispatcher.dispatch({ type: "JumpToPrev" });
+const toggle = () => dispatcher.dispatch(<DispatchAction>{ type: "Toggle" });
+const jumpToNext = () => dispatcher.dispatch(<DispatchAction>{ type: "JumpToNext" });
+const jumpToPrev = () => dispatcher.dispatch(<DispatchAction>{ type: "JumpToPrev" });
 
 let plugin = new SideTocPlugin();
 module.exports = {

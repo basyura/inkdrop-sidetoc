@@ -4,6 +4,7 @@ import * as React from "react";
 import * as ripper from "./ripper";
 import dispatcher from "./dispatcher";
 import Settings from "./settings";
+import { DispatchAction, HeaderItem } from "./types";
 
 const $ = (query: string) => document.querySelector(query);
 
@@ -47,7 +48,10 @@ export default class SideTocPane extends React.Component {
     this.curSectionRef = React.createRef();
     */
     // for handle event
-    this.dispatchId = dispatcher.register(this.dispachAction.bind(this));
+
+    this.dispatchId = dispatcher.register((action: DispatchAction) =>
+      this.dispachAction(action)
+    );
 
     let editor = inkdrop.getActiveEditor();
     if (editor != null) {
@@ -83,7 +87,7 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  dispachAction(action: any) {
+  dispachAction(action: DispatchAction) {
     switch (action.type) {
       case "Toggle":
         this.handleVisibility();
@@ -125,7 +129,7 @@ export default class SideTocPane extends React.Component {
 
     return (
       <div className={className} style={style}>
-        {this.state.headers.map((v: any) => {
+        {this.state.headers.map((v: HeaderItem) => {
           current += "_" + v.str;
           const { style, isCurrent } = this.toStyle(v, current);
           let ref = isCurrent ? this.curSectionRef : null;
@@ -366,7 +370,7 @@ export default class SideTocPane extends React.Component {
     this.previewHeaders = [];
 
     const preview = editorEle.querySelector(".mde-preview");
-    preview!.querySelectorAll("*").forEach((v: any) => {
+    preview!.querySelectorAll("*").forEach((v: Element) => {
       if (v.tagName.length == 2 && v.tagName.startsWith("H")) {
         this.previewHeaders.push(v);
       }
@@ -445,7 +449,7 @@ export default class SideTocPane extends React.Component {
   /*
    * scroll to header
    */
-  handleClick = (header: any, _: any) => {
+  handleClick = (header: HeaderItem, _: any) => {
     // for preview mode
     if (this.isPreview) {
       for (let i = 0; i < this.state.headers.length; i++) {

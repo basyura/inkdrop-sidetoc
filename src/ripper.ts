@@ -1,10 +1,12 @@
 "use babel";
+
+import { HeaderItem } from "./types";
 /*
  * extract # headers
  */
 export function parse(props: any) {
   // section list which starting with #.
-  let headers: any[] = [];
+  let headers: HeaderItem[] = [];
   // minimum section level
   let min = 999;
   let row = -1;
@@ -36,10 +38,11 @@ export function parse(props: any) {
       }
     }
     // create header item
-    let header = {
+    const header: HeaderItem = {
       count: i,
       str: v.replace(/^#*? /, ""),
       rowStart: row,
+      rowEnd: 0,
       index: index
     };
     index++;
