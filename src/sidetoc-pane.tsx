@@ -43,7 +43,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     if (editor != null) {
       this.attatchEvents(editor);
     } else {
-      inkdrop.onEditorLoad(e => this.attatchEvents(e));
+      inkdrop.onEditorLoad((e) => this.attatchEvents(e));
     }
   }
   /*
@@ -167,7 +167,7 @@ export default class SideTocPane extends React.Component<Props, State> {
       "editor-viewmode-preview"
     );
     // observe preview update
-    this.iState.observer = new MutationObserver(_ =>
+    this.iState.observer = new MutationObserver((_) =>
       this.handlePreviewUpdate(editorEle)
     );
 
