@@ -13,7 +13,7 @@ export function parse(props: Props): ParseResult {
   let before: HeaderItem | null = null;
   let index = 0;
   let isInCodeBlock = false;
-  let codeBlockReg = /^\s{0,}```/;
+  const codeBlockReg = /^\s{0,}```/;
 
   props.editingNote.body.split("\n").forEach((v: string) => {
     row++;

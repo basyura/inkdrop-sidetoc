@@ -54,7 +54,7 @@ const jumpToNext = () =>
 const jumpToPrev = () =>
   dispatcher.dispatch(<DispatchAction>{ type: "JumpToPrev" });
 
-let plugin = new SideTocPlugin();
+const plugin = new SideTocPlugin();
 module.exports = {
   config: {
     highlightColor: {
