@@ -3,7 +3,7 @@
 import { CompositeDisposable } from "event-kit";
 import * as SideTocPane from "./sidetoc-pane";
 import dispatcher from "./dispatcher";
-import { Inkdrop, DispatchAction } from './types'
+import { Inkdrop, DispatchAction } from "./types";
 
 const componentName = "SideTocPane";
 const layoutName = "mde";
@@ -22,14 +22,13 @@ class SideTocPlugin {
       commands.add(document.body, {
         "sidetoc:sidetoc-toggle": toggle,
         "sidetoc:jump-next": jumpToNext,
-        "sidetoc:jump-prev": jumpToPrev
+        "sidetoc:jump-prev": jumpToPrev,
       })
     );
   }
 
   deactivate() {
-
-    dispatcher.dispatch(<DispatchAction>{ type: "Deactivate"});
+    dispatcher.dispatch(<DispatchAction>{ type: "Deactivate" });
 
     this.subscriptions.dispose();
 
@@ -50,8 +49,10 @@ const show = () => {
 
 /* dispachers */
 const toggle = () => dispatcher.dispatch(<DispatchAction>{ type: "Toggle" });
-const jumpToNext = () => dispatcher.dispatch(<DispatchAction>{ type: "JumpToNext" });
-const jumpToPrev = () => dispatcher.dispatch(<DispatchAction>{ type: "JumpToPrev" });
+const jumpToNext = () =>
+  dispatcher.dispatch(<DispatchAction>{ type: "JumpToNext" });
+const jumpToPrev = () =>
+  dispatcher.dispatch(<DispatchAction>{ type: "JumpToPrev" });
 
 let plugin = new SideTocPlugin();
 module.exports = {
@@ -59,18 +60,18 @@ module.exports = {
     highlightColor: {
       title: "highlight color",
       type: "string",
-      default: "#C5EAFB"
+      default: "#C5EAFB",
     },
     width: {
       title: "side pane width",
       type: "integer",
-      default: 200
-    }
+      default: 200,
+    },
   },
   activate() {
     plugin.activate();
   },
   deactivate() {
     plugin.deactivate();
-  }
+  },
 };

@@ -12,7 +12,7 @@ import {
   DispatchAction,
   HeaderItem,
   Props,
-  State
+  State,
 } from "./types";
 
 const $ = (query: string) => document.querySelector(query);
@@ -32,7 +32,7 @@ export default class SideTocPane extends React.Component<Props, State> {
       headers: [],
       currentHeader: null,
       min: 0,
-      len: 0
+      len: 0,
     };
 
     this.iState.dispatchId = dispatcher.register((action: DispatchAction) =>
@@ -43,7 +43,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     if (editor != null) {
       this.attatchEvents(editor);
     } else {
-      inkdrop.onEditorLoad((e: Editor) => this.attatchEvents(e));
+      inkdrop.onEditorLoad(e => this.attatchEvents(e));
     }
   }
   /*
@@ -107,7 +107,7 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     const style = {
       fontFamily: Settings.fontFamily,
-      height: inkdrop.window.getSize()[1] - this.iState.heightDiff
+      height: inkdrop.window.getSize()[1] - this.iState.heightDiff,
     };
 
     // current header key for preview which join header text with "_".
@@ -202,7 +202,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     const newState = Object.assign(option, {
       headers: ret.headers,
       min: ret.min,
-      len: editor.cm.lineCount()
+      len: editor.cm.lineCount(),
     });
 
     this.commit(newState);
@@ -469,7 +469,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     let style = {
       marginLeft: 20 * (header.count - this.state.min),
       cursor: "pointer",
-      backgroundColor: ""
+      backgroundColor: "",
     };
 
     let isCurrent = false;

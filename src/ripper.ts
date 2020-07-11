@@ -43,7 +43,7 @@ export function parse(props: Props): ParseResult {
       str: v.replace(/^#*? /, ""),
       rowStart: row,
       rowEnd: 0,
-      index: index
+      index: index,
     };
     index++;
     // apply header end row
