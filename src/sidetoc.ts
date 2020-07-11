@@ -3,12 +3,12 @@
 import { CompositeDisposable } from "event-kit";
 import * as SideTocPane from "./sidetoc-pane";
 import dispatcher from "./dispatcher";
-import { DispatchAction } from './types'
+import { Inkdrop, DispatchAction } from './types'
 
 const componentName = "SideTocPane";
 const layoutName = "mde";
 
-declare var inkdrop: any;
+declare var inkdrop: Inkdrop;
 
 class SideTocPlugin {
   subscriptions = new CompositeDisposable();

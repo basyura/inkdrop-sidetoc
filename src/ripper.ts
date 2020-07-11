@@ -1,16 +1,16 @@
 "use babel";
 
-import { HeaderItem } from "./types";
+import { HeaderItem, ParseResult, Props } from "./types";
 /*
  * extract # headers
  */
-export function parse(props: any) {
+export function parse(props: Props): ParseResult {
   // section list which starting with #.
   let headers: HeaderItem[] = [];
   // minimum section level
   let min = 999;
   let row = -1;
-  let before: any = null;
+  let before: HeaderItem | null = null;
   let index = 0;
   let isInCodeBlock = false;
   let codeBlockReg = /^\s{0,}```/;

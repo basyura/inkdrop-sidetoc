@@ -1,6 +1,8 @@
 "use babel";
 
-declare var inkdrop: any;
+import { Inkdrop } from "./types";
+
+declare var inkdrop: Inkdrop;
 
 class Settings {
   fontFamily: string = "";

@@ -2,14 +2,22 @@
 
 import * as React from "react";
 import * as ripper from "./ripper";
+import CodeMirror from "codemirror";
 import dispatcher from "./dispatcher";
 import Settings from "./settings";
 import { PaneState } from "./pane-state";
-import { DispatchAction, HeaderItem, Props, State } from "./types";
+import {
+  Inkdrop,
+  Editor,
+  DispatchAction,
+  HeaderItem,
+  Props,
+  State
+} from "./types";
 
 const $ = (query: string) => document.querySelector(query);
 
-declare var inkdrop: any;
+declare var inkdrop: Inkdrop;
 
 export default class SideTocPane extends React.Component<Props, State> {
   // internal state
@@ -35,7 +43,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     if (editor != null) {
       this.attatchEvents(editor);
     } else {
-      inkdrop.onEditorLoad((e: any) => this.attatchEvents(e));
+      inkdrop.onEditorLoad((e: Editor) => this.attatchEvents(e));
     }
   }
   /*
@@ -128,7 +136,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  attatchEvents(editor: any) {
+  attatchEvents(editor: Editor) {
     // refresh
     this.updateState();
 
@@ -168,7 +176,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  dettatchEvents(editor: any) {
+  dettatchEvents(editor: Editor) {
     const { cm } = editor;
     cm.off("cursorActivity", this.handleCursorActivity);
     cm.off("update", this.handleCmUpdate);
@@ -189,10 +197,13 @@ export default class SideTocPane extends React.Component<Props, State> {
     if (editor == null) {
       return;
     }
-    let ret: any = ripper.parse(this.props);
-    ret["len"] = editor.cm.lineCount();
-
-    const newState = Object.assign(option, ret);
+    let ret = ripper.parse(this.props);
+    // renew state
+    const newState = Object.assign(option, {
+      headers: ret.headers,
+      min: ret.min,
+      len: editor.cm.lineCount()
+    });
 
     this.commit(newState);
   };
@@ -245,7 +256,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  handleCursorActivity = (cm: any) => {
+  handleCursorActivity = (cm: CodeMirror.Editor) => {
     let cur = cm.getCursor();
     if (cur.line == this.iState.lastLine) {
       return;
@@ -257,7 +268,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    * Handle scrolling and refresh highlight section.
    */
-  handleCmScroll = (cm: any) => {
+  handleCmScroll = (cm: CodeMirror.Editor) => {
     // prioritize handleCursorActivity
     if (
       this.iState.cursorTime != null &&
@@ -328,7 +339,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     const { cm } = inkdrop.getActiveEditor();
     const { line } = cm.getCursor();
     const header = this.getCurrentHeader(line);
-    const next = this.getNextHeader(header, line);
+    const next = this.getNextHeader(header);
     if (next != null) {
       cm.scrollTo(0, 99999);
       cm.setCursor(next.rowStart, 0);
@@ -422,7 +433,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  handleWindowResize = (_: any) => {
+  handleWindowResize = () => {
     // Handle size changed.
     if (!this.state.visibility) {
       return;
@@ -433,7 +444,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    * scroll to header
    */
-  handleClick = (header: HeaderItem, _: any) => {
+  handleClick = (header: HeaderItem) => {
     // for preview mode
     if (this.iState.isPreview) {
       for (let i = 0; i < this.state.headers.length; i++) {
@@ -454,10 +465,11 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    * convert to style
    */
-  toStyle = (header: any, current: any) => {
-    let style: any = {
+  toStyle = (header: HeaderItem, current: string) => {
+    let style = {
       marginLeft: 20 * (header.count - this.state.min),
-      cursor: "pointer"
+      cursor: "pointer",
+      backgroundColor: ""
     };
 
     let isCurrent = false;
@@ -495,7 +507,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  getPrevHeader(header: any, line: any) {
+  getPrevHeader(header: HeaderItem | null, line: number) {
     if (header == null) {
       return null;
     }
@@ -518,7 +530,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  getNextHeader(header: any, _: any) {
+  getNextHeader(header: HeaderItem | null) {
     if (header == null) {
       // jump to first header
       return this.state.headers.length > 0 ? this.state.headers[0] : null;
@@ -540,7 +552,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  log(_: any) {
+  log(_: () => string) {
     //console.log(`sidetoc: ${fn()}`);
   }
 }

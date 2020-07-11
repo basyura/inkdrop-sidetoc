@@ -1,3 +1,20 @@
+import CodeMirror from "codemirror";
+
+export interface Inkdrop {
+  window: any;
+  commands: any;
+  config: any;
+  components: any;
+  layouts: any;
+  getActiveEditor(): Editor;
+  onEditorLoad(callback: (e: Editor) => void): void;
+}
+
+export interface Editor {
+  cm: CodeMirror.Editor;
+  forceUpdate(): any;
+}
+
 export interface DispatchAction {
   type: string;
 }
@@ -20,4 +37,9 @@ export interface State {
   currentHeader: HeaderItem | null;
   min: number;
   len: number;
+}
+
+export interface ParseResult {
+  headers: HeaderItem[];
+  min: number;
 }
