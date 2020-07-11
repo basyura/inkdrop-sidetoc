@@ -4,24 +4,28 @@ import * as React from "react";
 import * as ripper from "./ripper";
 import dispatcher from "./dispatcher";
 import Settings from "./settings";
-import { PaneState } from './pane-state'
-import { DispatchAction, HeaderItem } from "./types";
+import { PaneState } from "./pane-state";
+import { DispatchAction, HeaderItem, Props, State } from "./types";
 
 const $ = (query: string) => document.querySelector(query);
 
 declare var inkdrop: any;
 
-export default class SideTocPane extends React.Component {
+export default class SideTocPane extends React.Component<Props, State> {
+  // internal state
   iState = new PaneState();
-  state: any;
-  props: any;
-
   /*
    *
    */
   componentWillMount() {
     // state of this component
-    this.state = { visibility: true, headers: [], min: 0, len: 0 };
+    this.state = {
+      visibility: true,
+      headers: [],
+      currentHeader: null,
+      min: 0,
+      len: 0
+    };
 
     this.iState.dispatchId = dispatcher.register((action: DispatchAction) =>
       this.dispachAction(action)
@@ -195,7 +199,7 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  updateSection(line: number) {
+  updateSection(line: number): void {
     const header = this.getCurrentHeader(line);
     if (header != null && this.state.currentHeader != header) {
       this.commit({ currentHeader: header });
@@ -475,7 +479,7 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  getCurrentHeader(line: number) {
+  getCurrentHeader(line: number): HeaderItem | null {
     let len = this.state.headers.length;
     for (let i = 0; i < len; i++) {
       let header = this.state.headers[i];
@@ -529,7 +533,7 @@ export default class SideTocPane extends React.Component {
   /*
    *
    */
-  commit(state: any) {
+  commit(state: {}): void {
     this.log(() => "★★★ commit");
     this.setState(state);
   }
