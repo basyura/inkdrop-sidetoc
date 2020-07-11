@@ -4,6 +4,7 @@ import * as React from "react";
 import * as ripper from "./ripper";
 import dispatcher from "./dispatcher";
 import Settings from "./settings";
+import { PaneState } from './pane-state'
 import { DispatchAction, HeaderItem } from "./types";
 
 const $ = (query: string) => document.querySelector(query);
@@ -11,45 +12,18 @@ const $ = (query: string) => document.querySelector(query);
 declare var inkdrop: any;
 
 export default class SideTocPane extends React.Component {
-  lastLine: number = -1;
-  noteId: string = "";
-  heightDiff: number = 0;
-  isPreview: boolean = false;
-  // preview headers. this value is cleared with null when mode change to preview.
-  previewHeaders: Element[] = [];
-  previewCurrent: string = "";
-  // ref to scrollIntoView
-  curSectionRef: React.RefObject<HTMLLIElement> = React.createRef();
-  // for handle event
-  dispatchId: string = "";
+  iState = new PaneState();
   state: any;
   props: any;
-  cursorTime: Date | null = null;
-  observer: MutationObserver | null = null;
-  firstPreview: boolean = true;
+
   /*
    *
    */
   componentWillMount() {
     // state of this component
     this.state = { visibility: true, headers: [], min: 0, len: 0 };
-    /*
-    // last cursor line
-    this.lastLine = -1;
-    // current note id
-    this.noteId = "";
-    // diff between window and codemirror to apply to sidetoc height
-    this.heightDiff = 0;
-    // previewMode
-    this.isPreview = false;
-    // preview current header
-    this.previewCurrent = "";
-    // ref to scrollIntoView
-    this.curSectionRef = React.createRef();
-    */
-    // for handle event
 
-    this.dispatchId = dispatcher.register((action: DispatchAction) =>
+    this.iState.dispatchId = dispatcher.register((action: DispatchAction) =>
       this.dispachAction(action)
     );
 
@@ -65,8 +39,8 @@ export default class SideTocPane extends React.Component {
    */
   componentDidUpdate() {
     this.log(() => "★★★ componentDidUpdate");
-    if (this.curSectionRef.current != null) {
-      this.curSectionRef.current.scrollIntoView();
+    if (this.iState.curSectionRef.current != null) {
+      this.iState.curSectionRef.current.scrollIntoView();
     }
   }
   /*
@@ -74,7 +48,7 @@ export default class SideTocPane extends React.Component {
    */
   componentWillUnmount() {
     // unhandle event
-    dispatcher.unregister(this.dispatchId);
+    dispatcher.unregister(this.iState.dispatchId);
 
     let editor = inkdrop.getActiveEditor();
     // for delete note
@@ -121,7 +95,7 @@ export default class SideTocPane extends React.Component {
 
     const style = {
       fontFamily: Settings.fontFamily,
-      height: inkdrop.window.getSize()[1] - this.heightDiff
+      height: inkdrop.window.getSize()[1] - this.iState.heightDiff
     };
 
     // current header key for preview which join header text with "_".
@@ -132,7 +106,7 @@ export default class SideTocPane extends React.Component {
         {this.state.headers.map((v: HeaderItem) => {
           current += "_" + v.str;
           const { style, isCurrent } = this.toStyle(v, current);
-          let ref = isCurrent ? this.curSectionRef : null;
+          let ref = isCurrent ? this.iState.curSectionRef : null;
           return (
             <li
               style={style}
@@ -161,7 +135,7 @@ export default class SideTocPane extends React.Component {
 
     // for sidetoc overflow-y
     const winHeight = inkdrop.window.getSize()[1];
-    this.heightDiff = winHeight - cm.getScrollInfo().clientHeight;
+    this.iState.heightDiff = winHeight - cm.getScrollInfo().clientHeight;
     inkdrop.window.on("resize", this.handleWindowResize);
 
     // hook preview scroll
@@ -177,13 +151,15 @@ export default class SideTocPane extends React.Component {
     preview.addEventListener("scroll", this.handlePreviewScroll);
 
     // check initial view mode
-    this.isPreview = editorEle.classList.contains("editor-viewmode-preview");
+    this.iState.isPreview = editorEle.classList.contains(
+      "editor-viewmode-preview"
+    );
     // observe preview update
-    this.observer = new MutationObserver(_ =>
+    this.iState.observer = new MutationObserver(_ =>
       this.handlePreviewUpdate(editorEle)
     );
 
-    this.observer.observe(preview, { attributes: true, subtree: true });
+    this.iState.observer.observe(preview, { attributes: true, subtree: true });
   }
   /*
    *
@@ -195,7 +171,7 @@ export default class SideTocPane extends React.Component {
     cm.off("scroll", this.handleCmScroll);
 
     inkdrop.window.off("resize", this.handleWindowResize);
-    this.observer!.disconnect();
+    this.iState.observer!.disconnect();
 
     // TODO
     //const preview = editorEle.querySelector(".mde-preview");
@@ -243,15 +219,15 @@ export default class SideTocPane extends React.Component {
    *
    */
   handleCmUpdate = () => {
-    if (this.props.editingNote._id != this.noteId) {
-      this.noteId = this.props.editingNote._id;
+    if (this.props.editingNote._id != this.iState.noteId) {
+      this.iState.noteId = this.props.editingNote._id;
       this.updateState();
       return;
     }
 
     const editor = inkdrop.getActiveEditor();
     const { cm } = editor;
-    const text = cm.lineInfo(cm.getCursor().line).text;
+    const text = cm.lineInfo(cm.getCursor().line).text as string;
     // forcely udpate when starts width "#"
     if (!text.startsWith("#")) {
       // edited normal line.
@@ -267,12 +243,12 @@ export default class SideTocPane extends React.Component {
    */
   handleCursorActivity = (cm: any) => {
     let cur = cm.getCursor();
-    if (cur.line == this.lastLine) {
+    if (cur.line == this.iState.lastLine) {
       return;
     }
-    this.lastLine = cur.line;
+    this.iState.lastLine = cur.line;
     this.updateSection(cur.line);
-    this.cursorTime = new Date();
+    this.iState.cursorTime = new Date();
   };
   /*
    * Handle scrolling and refresh highlight section.
@@ -280,8 +256,8 @@ export default class SideTocPane extends React.Component {
   handleCmScroll = (cm: any) => {
     // prioritize handleCursorActivity
     if (
-      this.cursorTime != null &&
-      new Date().getTime() - this.cursorTime.getTime() < 100
+      this.iState.cursorTime != null &&
+      new Date().getTime() - this.iState.cursorTime.getTime() < 100
     ) {
       return;
     }
@@ -302,16 +278,18 @@ export default class SideTocPane extends React.Component {
    */
   handleJumpToPrev = () => {
     // for preview mode
-    if (this.isPreview) {
-      for (let i = 1; i < this.previewHeaders.length; i++) {
-        const header = this.previewHeaders[i];
+    if (this.iState.isPreview) {
+      for (let i = 1; i < this.iState.previewHeaders.length; i++) {
+        const header = this.iState.previewHeaders[i];
         const top = header.getBoundingClientRect().top;
         if (top > 0) {
-          this.previewHeaders[i - 1].scrollIntoView();
+          this.iState.previewHeaders[i - 1].scrollIntoView();
           return;
         }
       }
-      this.previewHeaders[this.previewHeaders.length - 1].scrollIntoView();
+      this.iState.previewHeaders[
+        this.iState.previewHeaders.length - 1
+      ].scrollIntoView();
       return;
     }
 
@@ -330,12 +308,12 @@ export default class SideTocPane extends React.Component {
    */
   handleJumpToNext = () => {
     // for preview mode
-    if (this.isPreview) {
-      for (let i = this.previewHeaders.length - 2; i >= 0; i--) {
-        const header = this.previewHeaders[i];
+    if (this.iState.isPreview) {
+      for (let i = this.iState.previewHeaders.length - 2; i >= 0; i--) {
+        const header = this.iState.previewHeaders[i];
         const top = header.getBoundingClientRect().top;
         if (top < 100) {
-          this.previewHeaders[i + 1].scrollIntoView();
+          this.iState.previewHeaders[i + 1].scrollIntoView();
           break;
         }
       }
@@ -361,18 +339,20 @@ export default class SideTocPane extends React.Component {
       return;
     }
 
-    this.isPreview = editorEle.classList.contains("editor-viewmode-preview");
+    this.iState.isPreview = editorEle.classList.contains(
+      "editor-viewmode-preview"
+    );
     // skip editor mode
-    if (!this.isPreview) {
+    if (!this.iState.isPreview) {
       return;
     }
 
-    this.previewHeaders = [];
+    this.iState.previewHeaders = [];
 
     const preview = editorEle.querySelector(".mde-preview");
     preview!.querySelectorAll("*").forEach((v: Element) => {
       if (v.tagName.length == 2 && v.tagName.startsWith("H")) {
-        this.previewHeaders.push(v);
+        this.iState.previewHeaders.push(v);
       }
     });
   };
@@ -382,29 +362,29 @@ export default class SideTocPane extends React.Component {
    */
   handlePreviewScroll = (_: Event) => {
     // skip editor mode
-    if (!this.isPreview) {
+    if (!this.iState.isPreview) {
       return;
     }
 
     // for first preview
-    if (this.firstPreview) {
-      this.firstPreview = false;
+    if (this.iState.firstPreview) {
+      this.iState.firstPreview = false;
       this.handlePreviewUpdate($(".editor"));
     }
 
     // analyze current header
-    for (let i = this.previewHeaders.length - 1; i >= 0; i--) {
-      const top = this.previewHeaders[i].getBoundingClientRect().top;
+    for (let i = this.iState.previewHeaders.length - 1; i >= 0; i--) {
+      const top = this.iState.previewHeaders[i].getBoundingClientRect().top;
       // create current header key
       if (top < 100) {
         let current = "";
         let k = 0;
         for (k = 0; k <= i; k++) {
-          current += "_" + this.previewHeaders[k].textContent;
+          current += "_" + this.iState.previewHeaders[k].textContent;
         }
         // change preview current
-        if (this.previewCurrent != current) {
-          this.previewCurrent = current;
+        if (this.iState.previewCurrent != current) {
+          this.iState.previewCurrent = current;
 
           // move cursor to active header
           const { cm } = inkdrop.getActiveEditor();
@@ -451,10 +431,10 @@ export default class SideTocPane extends React.Component {
    */
   handleClick = (header: HeaderItem, _: any) => {
     // for preview mode
-    if (this.isPreview) {
+    if (this.iState.isPreview) {
       for (let i = 0; i < this.state.headers.length; i++) {
         if (this.state.headers[i] == header) {
-          this.previewHeaders[i].scrollIntoView();
+          this.iState.previewHeaders[i].scrollIntoView();
           inkdrop.commands.dispatch(document.body, "editor:focus");
           break;
         }
@@ -478,8 +458,8 @@ export default class SideTocPane extends React.Component {
 
     let isCurrent = false;
 
-    if (this.isPreview) {
-      if (this.previewCurrent == current) {
+    if (this.iState.isPreview) {
+      if (this.iState.previewCurrent == current) {
         isCurrent = true;
       }
     } else if (this.state.currentHeader == header) {
