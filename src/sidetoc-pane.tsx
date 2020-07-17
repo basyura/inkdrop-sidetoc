@@ -170,7 +170,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     );
 
     this.paneState.observer.observe(preview, {
-      attributes: true,
+      childList: true,
       subtree: true,
     });
   }
@@ -324,7 +324,11 @@ export default class SideTocPane extends React.Component<Props, State> {
    */
   handleJumpToNext = () => {
     // for preview mode
+    console.log("isPreview : " + this.paneState.isPreview);
     if (this.paneState.isPreview) {
+      console.log(
+        "previewHeaders length : " + this.paneState.previewHeaders.length
+      );
       for (let i = this.paneState.previewHeaders.length - 2; i >= 0; i--) {
         const header = this.paneState.previewHeaders[i];
         const top = header.getBoundingClientRect().top;
@@ -351,6 +355,7 @@ export default class SideTocPane extends React.Component<Props, State> {
    *
    */
   handlePreviewUpdate = (editorEle: Element | null) => {
+    console.log("handlePreviewUpdate start");
     if (editorEle == null) {
       return;
     }
@@ -360,9 +365,11 @@ export default class SideTocPane extends React.Component<Props, State> {
     );
     // skip editor mode
     if (!this.paneState.isPreview) {
+      console.log("skip no preview");
       return;
     }
 
+    console.log("handlePreviewUpdate");
     this.paneState.previewHeaders = [];
 
     const preview = editorEle.querySelector(".mde-preview");
@@ -405,9 +412,10 @@ export default class SideTocPane extends React.Component<Props, State> {
           // move cursor to active header
           const { cm } = inkdrop.getActiveEditor();
           const header = this.state.headers[k - 1];
-          cm.setCursor(header.rowStart, 0);
-
-          this.forceUpdate();
+          if (header != null) {
+            cm.setCursor(header.rowStart, 0);
+            this.forceUpdate();
+          }
         }
 
         break;
