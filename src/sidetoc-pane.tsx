@@ -305,7 +305,7 @@ export default class SideTocPane extends React.Component<Props, State> {
       }
       this.paneState.previewHeaders[
         this.paneState.previewHeaders.length - 1
-      ].scrollIntoView();
+      ]?.scrollIntoView();
       return;
     }
 
@@ -324,11 +324,7 @@ export default class SideTocPane extends React.Component<Props, State> {
    */
   handleJumpToNext = () => {
     // for preview mode
-    console.log("isPreview : " + this.paneState.isPreview);
     if (this.paneState.isPreview) {
-      console.log(
-        "previewHeaders length : " + this.paneState.previewHeaders.length
-      );
       for (let i = this.paneState.previewHeaders.length - 2; i >= 0; i--) {
         const header = this.paneState.previewHeaders[i];
         const top = header.getBoundingClientRect().top;
@@ -355,7 +351,6 @@ export default class SideTocPane extends React.Component<Props, State> {
    *
    */
   handlePreviewUpdate = (editorEle: Element | null) => {
-    console.log("handlePreviewUpdate start");
     if (editorEle == null) {
       return;
     }
@@ -365,11 +360,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     );
     // skip editor mode
     if (!this.paneState.isPreview) {
-      console.log("skip no preview");
       return;
     }
 
-    console.log("handlePreviewUpdate");
     this.paneState.previewHeaders = [];
 
     const preview = editorEle.querySelector(".mde-preview");
