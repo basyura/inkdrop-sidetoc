@@ -172,6 +172,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.paneState.observer.observe(preview, {
       childList: true,
       subtree: true,
+      attributes: true,
     });
   }
   /*
@@ -324,6 +325,7 @@ export default class SideTocPane extends React.Component<Props, State> {
    */
   handleJumpToNext = () => {
     // for preview mode
+    console.log("handleJumpToNext: isPreview=" + this.paneState.isPreview);
     if (this.paneState.isPreview) {
       for (let i = this.paneState.previewHeaders.length - 2; i >= 0; i--) {
         const header = this.paneState.previewHeaders[i];
