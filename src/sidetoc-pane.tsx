@@ -325,12 +325,15 @@ export default class SideTocPane extends React.Component<Props, State> {
    */
   handleJumpToNext = () => {
     // for preview mode
-    console.log("handleJumpToNext: isPreview=" + this.paneState.isPreview);
     if (this.paneState.isPreview) {
+      const diff = document
+        .querySelector(".mde-preview")!
+        .getBoundingClientRect().y;
       for (let i = this.paneState.previewHeaders.length - 2; i >= 0; i--) {
         const header = this.paneState.previewHeaders[i];
         const top = header.getBoundingClientRect().top;
-        if (top < 100) {
+        // maybe under 10
+        if (top - diff < 50) {
           this.paneState.previewHeaders[i + 1].scrollIntoView();
           break;
         }
