@@ -96,8 +96,6 @@ export default class SideTocPane extends React.Component<Props, State> {
    *
    */
   render() {
-    this.log(() => "★★★ render");
-
     let className = "sidetoc-pane";
     if (!this.state.visibility || this.state.headers.length == 0) {
       className = "sidetoc-pane-hide";
@@ -114,7 +112,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     return (
       <div className={className} style={style}>
         {this.state.headers.map((v: HeaderItem) => {
-          current += "_" + v.str;
+          current += "_" + v.str.replace(/ /g, "");
           const { style, isCurrent } = this.toStyle(v, current);
           const ref = isCurrent ? this.paneState.curSectionRef : null;
           return (
@@ -394,23 +392,28 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     // analyze current header
     for (let i = this.paneState.previewHeaders.length - 1; i >= 0; i--) {
-      const top = this.paneState.previewHeaders[i].getBoundingClientRect().top;
+      const header = this.paneState.previewHeaders[i];
+      const top = header.getBoundingClientRect().top;
+      const diff = document
+        .querySelector(".mde-preview")!
+        .getBoundingClientRect().y;
       // create current header key
-      if (top < 100) {
+      if (top - diff < 100) {
         let current = "";
         let k = 0;
         for (k = 0; k <= i; k++) {
           current += "_" + this.paneState.previewHeaders[k].textContent;
         }
+        current = current.replace(/ /g, "");
         // change preview current
         if (this.paneState.previewCurrent != current) {
           this.paneState.previewCurrent = current;
 
           // move cursor to active header
           const { cm } = inkdrop.getActiveEditor();
-          const header = this.state.headers[k - 1];
-          if (header != null) {
-            cm.setCursor(header.rowStart, 0);
+          const item = this.state.headers[k - 1];
+          if (item != null) {
+            cm.setCursor(item.rowStart, 0);
             this.forceUpdate();
           }
         }
