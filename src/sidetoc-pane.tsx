@@ -366,7 +366,6 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
 
     this.paneState.previewHeaders = [];
-
     const preview = editorEle.querySelector(".mde-preview");
     preview!.querySelectorAll("*").forEach((v: Element) => {
       if (v.tagName.length == 2 && v.tagName.startsWith("H")) {

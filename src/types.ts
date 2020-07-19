@@ -6,6 +6,7 @@ export interface Inkdrop {
   config: any;
   components: any;
   layouts: any;
+  store: any;
   getActiveEditor(): Editor;
   onEditorLoad(callback: (e: Editor) => void): void;
 }
