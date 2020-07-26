@@ -39,20 +39,14 @@ class SideTocPlugin {
 }
 
 const show = () => {
-  inkdrop.layouts.insertComponentToLayoutAfter(
-    layoutName,
-    "Editor",
-    componentName
-  );
+  inkdrop.layouts.insertComponentToLayoutAfter(layoutName, "Editor", componentName);
   dispatcher.dispatch({ type: "Activate" });
 };
 
 /* dispachers */
 const toggle = () => dispatcher.dispatch(<DispatchAction>{ type: "Toggle" });
-const jumpToNext = () =>
-  dispatcher.dispatch(<DispatchAction>{ type: "JumpToNext" });
-const jumpToPrev = () =>
-  dispatcher.dispatch(<DispatchAction>{ type: "JumpToPrev" });
+const jumpToNext = () => dispatcher.dispatch(<DispatchAction>{ type: "JumpToNext" });
+const jumpToPrev = () => dispatcher.dispatch(<DispatchAction>{ type: "JumpToPrev" });
 
 const plugin = new SideTocPlugin();
 module.exports = {

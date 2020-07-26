@@ -16,10 +16,7 @@ class Settings {
     // highlight
     inkdrop.config.observe("sidetoc.highlightColor", (newValue: string) => {
       this.hicolor = newValue;
-      document.documentElement.style.setProperty(
-        "--inkdrop-sidetoc-highlight-color",
-        this.hicolor
-      );
+      document.documentElement.style.setProperty("--inkdrop-sidetoc-highlight-color", this.hicolor);
     });
     // width
     inkdrop.config.observe("sidetoc.width", (newValue: number) => {

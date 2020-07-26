@@ -6,14 +6,7 @@ import CodeMirror from "codemirror";
 import dispatcher from "./dispatcher";
 import Settings from "./settings";
 import { PaneState } from "./pane-state";
-import {
-  Inkdrop,
-  Editor,
-  DispatchAction,
-  HeaderItem,
-  Props,
-  State,
-} from "./types";
+import { Inkdrop, Editor, DispatchAction, HeaderItem, Props, State } from "./types";
 
 const $ = (query: string) => document.querySelector(query);
 
@@ -116,11 +109,7 @@ export default class SideTocPane extends React.Component<Props, State> {
           const { style, isCurrent } = this.toStyle(v, current);
           const ref = isCurrent ? this.paneState.curSectionRef : null;
           return (
-            <li
-              style={style}
-              onClick={this.handleClick.bind(this, v)}
-              ref={ref}
-            >
+            <li style={style} onClick={this.handleClick.bind(this, v)} ref={ref}>
               {v.str}
             </li>
           );
@@ -159,13 +148,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     preview.addEventListener("scroll", this.handlePreviewScroll);
 
     // check initial view mode
-    this.paneState.isPreview = editorEle.classList.contains(
-      "editor-viewmode-preview"
-    );
+    this.paneState.isPreview = editorEle.classList.contains("editor-viewmode-preview");
     // observe preview update
-    this.paneState.observer = new MutationObserver((_) =>
-      this.handlePreviewUpdate(editorEle)
-    );
+    this.paneState.observer = new MutationObserver((_) => this.handlePreviewUpdate(editorEle));
 
     this.paneState.observer.observe(preview, {
       childList: true,
@@ -302,9 +287,7 @@ export default class SideTocPane extends React.Component<Props, State> {
           return;
         }
       }
-      this.paneState.previewHeaders[
-        this.paneState.previewHeaders.length - 1
-      ]?.scrollIntoView();
+      this.paneState.previewHeaders[this.paneState.previewHeaders.length - 1]?.scrollIntoView();
       return;
     }
 
@@ -324,9 +307,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   handleJumpToNext = () => {
     // for preview mode
     if (this.paneState.isPreview) {
-      const diff = document
-        .querySelector(".mde-preview")!
-        .getBoundingClientRect().y;
+      const diff = document.querySelector(".mde-preview")!.getBoundingClientRect().y;
       for (let i = this.paneState.previewHeaders.length - 2; i >= 0; i--) {
         const header = this.paneState.previewHeaders[i];
         const top = header.getBoundingClientRect().top;
@@ -358,9 +339,7 @@ export default class SideTocPane extends React.Component<Props, State> {
       return;
     }
 
-    this.paneState.isPreview = editorEle.classList.contains(
-      "editor-viewmode-preview"
-    );
+    this.paneState.isPreview = editorEle.classList.contains("editor-viewmode-preview");
     // skip editor mode
     if (!this.paneState.isPreview) {
       return;
@@ -394,9 +373,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     for (let i = this.paneState.previewHeaders.length - 1; i >= 0; i--) {
       const header = this.paneState.previewHeaders[i];
       const top = header.getBoundingClientRect().top;
-      const diff = document
-        .querySelector(".mde-preview")!
-        .getBoundingClientRect().y;
+      const diff = document.querySelector(".mde-preview")!.getBoundingClientRect().y;
       // create current header key
       if (top - diff < 100) {
         let current = "";

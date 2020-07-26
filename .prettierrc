@@ -3,3 +3,4 @@ tabWidth: 2
 semi: true
 singleQuote: false
 arrow_parens: "always"
+printWidth: 100
