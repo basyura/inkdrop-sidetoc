@@ -1,3 +1,4 @@
+"use babel";
 import CodeMirror from "codemirror";
 
 export interface Inkdrop {
@@ -43,4 +44,10 @@ export interface State {
 export interface ParseResult {
   headers: HeaderItem[];
   min: number;
+}
+
+export enum WidthChangeMode {
+  Reset,
+  Increase,
+  Decrease,
 }

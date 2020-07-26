@@ -6,7 +6,15 @@ import CodeMirror from "codemirror";
 import dispatcher from "./dispatcher";
 import Settings from "./settings";
 import { PaneState } from "./pane-state";
-import { Inkdrop, Editor, DispatchAction, HeaderItem, Props, State } from "./types";
+import {
+  Inkdrop,
+  Editor,
+  DispatchAction,
+  HeaderItem,
+  Props,
+  State,
+  WidthChangeMode,
+} from "./types";
 
 const $ = (query: string) => document.querySelector(query);
 
@@ -80,6 +88,15 @@ export default class SideTocPane extends React.Component<Props, State> {
         break;
       case "Deactivate":
         this.updateState({ visibility: false });
+        break;
+      case "IncreaseWidth":
+        this.handleChangeWidth(WidthChangeMode.Increase);
+        break;
+      case "DecreaseWidth":
+        this.handleChangeWidth(WidthChangeMode.Decrease);
+        break;
+      case "ResetWidth":
+        this.handleChangeWidth(WidthChangeMode.Reset);
         break;
 
       default:
@@ -431,6 +448,10 @@ export default class SideTocPane extends React.Component<Props, State> {
     cm.setCursor(header.rowStart, 0);
     cm.focus();
   };
+  /*
+   *
+   */
+  handleChangeWidth = (mode: WidthChangeMode) => Settings.changeCurrentWidth(mode);
   /*
    * convert to style
    */

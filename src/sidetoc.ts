@@ -23,6 +23,9 @@ class SideTocPlugin {
         "sidetoc:sidetoc-toggle": toggle,
         "sidetoc:jump-next": jumpToNext,
         "sidetoc:jump-prev": jumpToPrev,
+        "sidetoc:width-increase": increaseWidth,
+        "sidetoc:width-decrease": decreaseWidth,
+        "sidetoc:width-reset": resetWidth,
       })
     );
   }
@@ -47,6 +50,9 @@ const show = () => {
 const toggle = () => dispatcher.dispatch(<DispatchAction>{ type: "Toggle" });
 const jumpToNext = () => dispatcher.dispatch(<DispatchAction>{ type: "JumpToNext" });
 const jumpToPrev = () => dispatcher.dispatch(<DispatchAction>{ type: "JumpToPrev" });
+const increaseWidth = () => dispatcher.dispatch(<DispatchAction>{ type: "IncreaseWidth" });
+const decreaseWidth = () => dispatcher.dispatch(<DispatchAction>{ type: "DecreaseWidth" });
+const resetWidth = () => dispatcher.dispatch(<DispatchAction>{ type: "ResetWidth" });
 
 const plugin = new SideTocPlugin();
 module.exports = {
@@ -60,6 +66,11 @@ module.exports = {
       title: "side pane width",
       type: "integer",
       default: 200,
+    },
+    increaseWidth: {
+      title: "increase pane width",
+      type: "integer",
+      default: 10,
     },
   },
   activate() {

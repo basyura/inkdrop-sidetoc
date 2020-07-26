@@ -1,12 +1,15 @@
 "use babel";
 
-import { Inkdrop } from "./types";
+import { Inkdrop, WidthChangeMode } from "./types";
 
 declare var inkdrop: Inkdrop;
 
 class Settings {
+  DefaultWidth = 200;
   fontFamily: string = "";
   hicolor: string = "";
+  currentWidth: number = 0;
+  _settingWidth: number = 0;
 
   constructor() {
     // fontFamily
@@ -21,14 +24,36 @@ class Settings {
     // width
     inkdrop.config.observe("sidetoc.width", (newValue: number) => {
       if (newValue == null || newValue < 10) {
-        newValue = 200;
+        newValue = this.DefaultWidth;
       }
-      document.documentElement.style.setProperty(
-        "--inkdrop-sidetoc-width",
-        newValue.toString(10) + "px"
-      );
+      this._settingWidth = newValue;
+      this.currentWidth = newValue;
+      this.changeCurrentWidth(WidthChangeMode.Reset);
     });
   }
+  /*
+   *
+   */
+  changeCurrentWidth = (mode: WidthChangeMode) => {
+    let width = inkdrop.config.get("sidetoc.IncreaseWidth");
+    // check settings
+    if (width == null || width == 0) {
+      width = 10;
+    }
+
+    if (mode == WidthChangeMode.Reset) {
+      this.currentWidth = this._settingWidth;
+    } else if (mode == WidthChangeMode.Increase) {
+      this.currentWidth += width;
+    } else if (mode == WidthChangeMode.Decrease) {
+      this.currentWidth -= width;
+    }
+
+    document.documentElement.style.setProperty(
+      "--inkdrop-sidetoc-width",
+      this.currentWidth.toString(10) + "px"
+    );
+  };
 }
 
 export default new Settings();
