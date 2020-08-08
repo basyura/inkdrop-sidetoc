@@ -27,6 +27,12 @@ ipm install sidetoc
 | sidetoc:sidetoc-toggle | Toggle side toc pane.    |
 | sidetoc:jump-next      | Jump to next header.     |
 | sidetoc:jump-prev      | Jump to previous header. |
+| sidetoc:width-increase | increase width.          |
+| sidetoc:width-decrease | decrease width.          |
+| sidetoc:width-reset    | reset width.             |
+
+
+
 
 keymap.cson
 
@@ -35,6 +41,9 @@ keymap.cson
     'ctrl-l': 'sidetoc:sidetoc-toggle'
     'ctrl-n': 'sidetoc:jump-next'
     'ctrl-p': 'sidetoc:jump-prev'
+    'ctrl-L': 'sidetoc:width-decrease'
+    'ctrl-K': 'sidetoc:width-increase'
+    'ctrl-0': 'sidetoc:width-reset'
 
 '.mde-preview':
     'ctrl-n': 'sidetoc:jump-next'
@@ -61,6 +70,11 @@ sidetoc:
 * Content in html tags (syntax).
 
 ## Changelog
+
+1.8.0 - 2020/08/08
+
+- add change width command .
+- change to typescript.
 
 1.7.0 - 2020/06/25
 
