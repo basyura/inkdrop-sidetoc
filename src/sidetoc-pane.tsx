@@ -111,9 +111,13 @@ export default class SideTocPane extends React.Component<Props, State> {
       className = "sidetoc-pane-hide";
     }
 
+    const statusBar = document.querySelector(".editor-status-bar-layout");
     const style = {
       fontFamily: Settings.fontFamily,
-      height: inkdrop.window.getSize()[1] - this.paneState.heightDiff,
+      height:
+        inkdrop.window.getSize()[1] -
+        this.paneState.heightDiff -
+        (statusBar != null ? statusBar.clientHeight : 0),
     };
 
     // current header key for preview which join header text with "_".
