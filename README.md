@@ -1,5 +1,7 @@
 # Inkdrop SideToc Plugin
 
+https://my.inkdrop.app/plugins/sidetoc
+
 ![Inkdrop Plugin Version](https://inkdrop-plugin-badge.vercel.app/api/version/sidetoc&style=for-the-badge)
 ![Inkdrop Plugin Downloads](https://inkdrop-plugin-badge.vercel.app/api/downloads/sidetoc&style=for-the-badge)
 
