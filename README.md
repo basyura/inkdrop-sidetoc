@@ -76,6 +76,10 @@ sidetoc:
 
 ## Changelog
 
+1.9.0 - 2020/12/05
+
+- improved overflow-y style.
+
 1.8.0 - 2020/08/08
 
 - add change width command .
