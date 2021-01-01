@@ -3,6 +3,8 @@
 import * as React from "react";
 
 export class PaneState {
+  // rendered cache
+  content: any;
   lastLine: number;
   noteId: string;
   heightDiff: number;

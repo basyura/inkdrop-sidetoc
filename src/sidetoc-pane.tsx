@@ -106,6 +106,17 @@ export default class SideTocPane extends React.Component<Props, State> {
    *
    */
   render() {
+    // use cache
+    if (this.paneState.content == null) {
+      this.paneState.content = this.createContent();
+    }
+
+    return this.paneState.content;
+  }
+  /*
+   *
+   */
+  createContent() {
     let className = "sidetoc-pane";
     if (!this.state.visibility || this.state.headers.length == 0) {
       className = "sidetoc-pane-hide";
@@ -541,7 +552,9 @@ export default class SideTocPane extends React.Component<Props, State> {
    */
   commit(state: {}): void {
     this.log(() => "★★★ commit");
+    this.paneState.content = null;
     this.setState(state);
+    
   }
   /*
    *
