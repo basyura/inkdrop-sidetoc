@@ -3,7 +3,7 @@
 ![](https://inkdrop-plugin-badge.vercel.app/api/version/sidetoc)
 ![](https://inkdrop-plugin-badge.vercel.app/api/downloads/sidetoc)
 
-Provides Side TOC.
+It adds an outline view on the right side of the editor and preview.
 
 https://my.inkdrop.app/plugins/sidetoc
 
