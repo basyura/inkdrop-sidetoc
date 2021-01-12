@@ -76,6 +76,11 @@ sidetoc:
 
 ## Changelog
 
+1.9.1 - 2021/1/12
+
+- improved README
+- improved cache
+
 1.9.0 - 2020/12/05
 
 - improved overflow-y style.
