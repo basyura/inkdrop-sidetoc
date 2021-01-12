@@ -76,7 +76,7 @@ sidetoc:
 
 ## Changelog
 
-1.9.1 - 2021/1/12
+1.10.0 - 2021/1/12
 
 - improved README
 - improved cache
