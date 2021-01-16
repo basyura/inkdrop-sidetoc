@@ -9,6 +9,18 @@
             {
               "label": "Toggle SideToc",
               "command": "sidetoc:sidetoc-toggle"
+            },
+            {
+              "label": "Increase width",
+              "command": "sidetoc:width-increase"
+            },
+            {
+              "label": "Decrease width",
+              "command": "sidetoc:width-decrease"
+            },
+            {
+              "label": "Reset width",
+              "command": "sidetoc:width-reset"
             }
           ]
         }
