@@ -57,8 +57,10 @@ export default class SideTocPane extends React.Component<Props, State> {
       return;
     }
 
-    const pane = document.querySelector<HTMLElement>(".sidetoc-pane")!;
-    pane.scrollTop = cur.offsetTop - pane.offsetTop;
+    const pane = document.querySelector<HTMLElement>(".sidetoc-pane");
+    if (pane != null) {
+      pane.scrollTop = cur.offsetTop - pane.offsetTop;
+    }
   }
   /*
    *
@@ -358,6 +360,7 @@ export default class SideTocPane extends React.Component<Props, State> {
         const top = header.getBoundingClientRect().top;
         // maybe under 10
         if (top - diff < 50) {
+          console.log("handleJumpToNext1");
           preview.scrollTop = this.paneState.previewHeaders[i + 1].offsetTop - preview.offsetTop;
           break;
         }
@@ -573,6 +576,6 @@ export default class SideTocPane extends React.Component<Props, State> {
    *
    */
   log(_: () => string) {
-    //console.log(`sidetoc: ${fn()}`);
+    // console.log(`sidetoc: ${_()}`);
   }
 }
