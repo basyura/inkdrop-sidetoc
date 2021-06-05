@@ -52,7 +52,13 @@ export default class SideTocPane extends React.Component<Props, State> {
    */
   componentDidUpdate() {
     this.log(() => "★★★ componentDidUpdate");
-    this.paneState.curSectionRef.current?.scrollIntoView();
+    const cur = this.paneState.curSectionRef.current;
+    if (cur == null) {
+      return;
+    }
+
+    const pane = document.querySelector<HTMLElement>(".sidetoc-pane")!;
+    pane.scrollTop = cur.offsetTop - pane.offsetTop;
   }
   /*
    *
@@ -311,15 +317,21 @@ export default class SideTocPane extends React.Component<Props, State> {
   handleJumpToPrev = () => {
     // for preview mode
     if (this.paneState.isPreview) {
+      const preview = document.querySelector<HTMLElement>(".mde-preview")!;
       for (let i = 1; i < this.paneState.previewHeaders.length; i++) {
         const header = this.paneState.previewHeaders[i];
         const top = header.getBoundingClientRect().top;
         if (top > 0) {
-          this.paneState.previewHeaders[i - 1].scrollIntoView();
+          preview.scrollTop = this.paneState.previewHeaders[i - 1].offsetTop - preview.offsetTop;
           return;
         }
       }
-      this.paneState.previewHeaders[this.paneState.previewHeaders.length - 1]?.scrollIntoView();
+
+      const header = this.paneState.previewHeaders[this.paneState.previewHeaders.length - 1];
+      if (header == null) {
+        return;
+      }
+      preview.scrollTop = header.offsetTop - preview.offsetTop;
       return;
     }
 
@@ -339,13 +351,14 @@ export default class SideTocPane extends React.Component<Props, State> {
   handleJumpToNext = () => {
     // for preview mode
     if (this.paneState.isPreview) {
-      const diff = document.querySelector(".mde-preview")!.getBoundingClientRect().y;
+      const preview = document.querySelector<HTMLElement>(".mde-preview")!;
+      const diff = preview.getBoundingClientRect().y;
       for (let i = this.paneState.previewHeaders.length - 2; i >= 0; i--) {
         const header = this.paneState.previewHeaders[i];
         const top = header.getBoundingClientRect().top;
         // maybe under 10
         if (top - diff < 50) {
-          this.paneState.previewHeaders[i + 1].scrollIntoView();
+          preview.scrollTop = this.paneState.previewHeaders[i + 1].offsetTop - preview.offsetTop;
           break;
         }
       }
@@ -379,7 +392,7 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     this.paneState.previewHeaders = [];
     const preview = editorEle.querySelector(".mde-preview");
-    preview!.querySelectorAll("*").forEach((v: Element) => {
+    preview!.querySelectorAll<HTMLElement>("*").forEach((v: HTMLElement) => {
       if (v.tagName.length == 2 && v.tagName.startsWith("H")) {
         this.paneState.previewHeaders.push(v);
       }
@@ -450,7 +463,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     if (this.paneState.isPreview) {
       for (let i = 0; i < this.state.headers.length; i++) {
         if (this.state.headers[i] == header) {
-          this.paneState.previewHeaders[i].scrollIntoView();
+          const preview = document.querySelector<HTMLElement>(".mde-preview")!;
+          preview.scrollTop = this.paneState.previewHeaders[i].offsetTop - preview.offsetTop;
           inkdrop.commands.dispatch(document.body, "editor:focus");
           break;
         }
@@ -554,7 +568,6 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.log(() => "★★★ commit");
     this.paneState.content = null;
     this.setState(state);
-    
   }
   /*
    *

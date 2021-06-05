@@ -10,7 +10,7 @@ export class PaneState {
   heightDiff: number;
   isPreview: boolean;
   // preview headers. this value is cleared with null when mode change to preview.
-  previewHeaders: Element[];
+  previewHeaders: HTMLElement[];
   previewCurrent: string;
   // ref to scrollIntoView
   curSectionRef: React.RefObject<HTMLLIElement>;
