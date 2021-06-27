@@ -501,7 +501,7 @@ export default class SideTocPane extends React.Component<Props, State> {
       if (this.paneState.previewCurrent == current) {
         isCurrent = true;
       }
-    } else if (this.state.currentHeader == header) {
+    } else if (this.isSameHeader(this.state.currentHeader, header)) {
       isCurrent = true;
     }
 
@@ -511,6 +511,27 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     return { style, isCurrent };
   };
+  /*
+   *
+   */
+  isSameHeader(h1: HeaderItem | null, h2: HeaderItem): boolean {
+    if (h1 == null) {
+      return false;
+    } else if (h1 == h2) {
+      return true;
+    }
+
+    if (
+      h1.count == h2.count &&
+      h1.index == h2.index &&
+      h1.rowStart == h2.rowStart &&
+      h1.str == h2.str
+    ) {
+      return true;
+    }
+
+    return false;
+  }
   /*
    *
    */
@@ -569,7 +590,7 @@ export default class SideTocPane extends React.Component<Props, State> {
    *
    */
   commit(state: {}): void {
-    this.log(() => "★★★ commit");
+    // this.log(() => "★★★ commit");
     this.paneState.content = null;
     this.setState(state);
   }
