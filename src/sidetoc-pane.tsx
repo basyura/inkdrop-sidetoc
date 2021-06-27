@@ -276,7 +276,8 @@ export default class SideTocPane extends React.Component<Props, State> {
       }
     }
 
-    this.updateState();
+    // delay to catch the ime covnersion.
+    setTimeout(() => this.updateState(), 100);
   };
   /*
    *
