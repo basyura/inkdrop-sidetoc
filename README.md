@@ -76,6 +76,10 @@ sidetoc:
 
 ## Changelog
 
+1.12.0 - 2021/07/17
+
+- improved header updates
+
 1.11.0 - 2021/06/09
 
 - [fixed window becomes messed up](https://forum.inkdrop.app/t/window-becomes-messed-up-when-exporting-to-pdf/2462/2)
