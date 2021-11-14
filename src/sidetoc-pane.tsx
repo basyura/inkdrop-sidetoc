@@ -57,7 +57,7 @@ export default class SideTocPane extends React.Component<Props, State> {
       return;
     }
 
-    const pane = document.querySelector<HTMLElement>(".sidetoc-pane");
+    const pane = document.querySelector<HTMLElement>(".sidetoc-pane-wrapper");
     if (pane != null) {
       pane.scrollTop = cur.offsetTop - pane.offsetTop;
     }
@@ -133,6 +133,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     const statusBar = document.querySelector(".editor-status-bar-layout");
     const style = {
       fontFamily: Settings.fontFamily,
+    };
+
+    const wrapperStyle = {
       height:
         inkdrop.window.getSize()[1] -
         this.paneState.heightDiff -
@@ -144,16 +147,18 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     return (
       <div className={className} style={style}>
-        {this.state.headers.map((v: HeaderItem) => {
-          current += "_" + v.str.replace(/ /g, "");
-          const { style, isCurrent } = this.toStyle(v, current);
-          const ref = isCurrent ? this.paneState.curSectionRef : null;
-          return (
-            <li style={style} onClick={this.handleClick.bind(this, v)} ref={ref}>
-              {v.str}
-            </li>
-          );
-        })}
+        <div className="sidetoc-pane-wrapper" style={wrapperStyle}>
+          {this.state.headers.map((v: HeaderItem) => {
+            current += "_" + v.str.replace(/ /g, "");
+            const { style, isCurrent } = this.toStyle(v, current);
+            const ref = isCurrent ? this.paneState.curSectionRef : null;
+            return (
+              <li style={style} onClick={this.handleClick.bind(this, v)} ref={ref}>
+                {v.str}
+              </li>
+            );
+          })}
+        </div>
       </div>
     );
   }
