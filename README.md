@@ -80,7 +80,7 @@ sidetoc:
 1.14.0 - 2021/11/16  
 1.13.0 - 2021/11/16
 
-- improved sidetoc pane height. FIXED #6
+- improved sidetoc pane height. FIXED #9
 
 1.12.0 - 2021/07/17
 
