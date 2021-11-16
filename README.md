@@ -77,10 +77,10 @@ sidetoc:
 ## Changelog
 
 
-1.14.0 - 2021/11/16
+1.14.0 - 2021/11/16  
 1.13.0 - 2021/11/16
 
-- improved sidetoc pane height
+- improved sidetoc pane height. FIXED #6
 
 1.12.0 - 2021/07/17
 
