@@ -1,7 +1,7 @@
 {
   "name": "sidetoc",
   "main": "./lib/sidetoc",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "description": "It adds an outline view on the right side of the editor and preview",
   "keywords": [],
   "repository": "https://github.com/basyura/inkdrop-sidetoc",
