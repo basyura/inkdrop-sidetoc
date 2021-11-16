@@ -76,6 +76,11 @@ sidetoc:
 
 ## Changelog
 
+
+1.13.0 - 2021/11/16
+
+- improved sidetoc pane height
+
 1.12.0 - 2021/07/17
 
 - improved header updates
