@@ -4,7 +4,7 @@
   "version": "1.13.0",
   "description": "It adds an outline view on the right side of the editor and preview",
   "keywords": [],
-  "repository": "https://github.com/basyura/inkdrop-sidetoc",
+  "repository": "git@github.com:basyura/inkdrop-sidetoc.git",
   "license": "MIT",
   "engines": {
     "inkdrop": "^4.x"
