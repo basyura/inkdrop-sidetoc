@@ -10,6 +10,7 @@ class Settings {
   hicolor: string = "";
   currentWidth: number = 0;
   _settingWidth: number = 0;
+  sidetocPanePadding = 10;
 
   constructor() {
     // fontFamily
@@ -30,6 +31,11 @@ class Settings {
       this.currentWidth = newValue;
       this.changeCurrentWidth(WidthChangeMode.Reset);
     });
+    // wrapper's padding
+    document.documentElement.style.setProperty(
+      "--inkdrop-sidetoc-padding",
+      this.sidetocPanePadding.toString(10) + "px"
+    );
   }
   /*
    *
@@ -52,6 +58,11 @@ class Settings {
     document.documentElement.style.setProperty(
       "--inkdrop-sidetoc-width",
       this.currentWidth.toString(10) + "px"
+    );
+
+    document.documentElement.style.setProperty(
+      "--inkdrop-sidetoc-pane-wrapper-width",
+      (this.currentWidth - 2 * this.sidetocPanePadding).toString(10) + "px"
     );
   };
 }

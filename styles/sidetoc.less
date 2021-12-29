@@ -1,11 +1,12 @@
 .sidetoc-pane {
-  padding: 1rem;
+  padding: var(--inkdrop-sidetoc-padding);
   min-width: var(--inkdrop-sidetoc-width);
   max-width: var(--inkdrop-sidetoc-width);
   li {
     padding-left: 10px;
     line-height: 180%;
     list-style: none;
+    word-break: break-all;
   }
   li:hover {
     background-color: var(--inkdrop-sidetoc-highlight-color);
@@ -19,4 +20,5 @@
 .sidetoc-pane-wrapper {
   position: absolute;
   overflow-y: auto;
+  width: var(--inkdrop-sidetoc-pane-wrapper-width);
 }
