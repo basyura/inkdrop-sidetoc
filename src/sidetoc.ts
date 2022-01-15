@@ -72,6 +72,11 @@ module.exports = {
       type: "integer",
       default: 10,
     },
+    ellipsis: {
+      title: "text-overflow ellipsis",
+      type: "boolean",
+      default: false,
+    },
   },
   activate() {
     plugin.activate();

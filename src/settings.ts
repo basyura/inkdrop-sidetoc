@@ -10,6 +10,7 @@ class Settings {
   hicolor: string = "";
   currentWidth: number = 0;
   _settingWidth: number = 0;
+  isEllipsis: boolean = false;
   sidetocPanePadding = 10;
 
   constructor() {
@@ -30,6 +31,10 @@ class Settings {
       this._settingWidth = newValue;
       this.currentWidth = newValue;
       this.changeCurrentWidth(WidthChangeMode.Reset);
+    });
+    // ellipsis
+    inkdrop.config.observe("sidetoc.ellipsis", (newValue: boolean) => {
+      this.isEllipsis = newValue;
     });
     // wrapper's padding
     document.documentElement.style.setProperty(

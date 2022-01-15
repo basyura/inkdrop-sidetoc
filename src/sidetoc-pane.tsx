@@ -128,6 +128,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     let className = "sidetoc-pane";
     if (!this.state.visibility || this.state.headers.length == 0) {
       className = "sidetoc-pane-hide";
+    } else if (Settings.isEllipsis) {
+      className += " sidetoc-pane-ellipsis";
     }
 
     const statusBar = document.querySelector(".editor-status-bar-layout");
