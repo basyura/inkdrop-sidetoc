@@ -27,14 +27,15 @@ ipm install sidetoc
 
 ## Keybindings
 
-| Command                | Explanation              |
-| ---------------------- | ------------------------ |
-| sidetoc:sidetoc-toggle | Toggle side toc pane.    |
-| sidetoc:jump-next      | Jump to next header.     |
-| sidetoc:jump-prev      | Jump to previous header. |
-| sidetoc:width-increase | increase width.          |
-| sidetoc:width-decrease | decrease width.          |
-| sidetoc:width-reset    | reset width.             |
+| Command                | Explanation                       |
+| ---------------------- | --------------------------------- |
+| sidetoc:sidetoc-toggle | Toggle side toc pane.             |
+| sidetoc:jump-next      | Jump to next header.              |
+| sidetoc:jump-prev      | Jump to previous header.          |
+| sidetoc:width-increase | increase width.                   |
+| sidetoc:width-decrease | decrease width.                   |
+| sidetoc:width-reset    | reset width.                      |
+| sidetoc:wraptext-toggle| Toggle wrap/nowrap overflow text. |
 
 
 
@@ -49,6 +50,7 @@ keymap.cson
     'ctrl-L': 'sidetoc:width-decrease'
     'ctrl-K': 'sidetoc:width-increase'
     'ctrl-0': 'sidetoc:width-reset'
+    'ctrl-t': 'sidetoc:wraptext-toggle'
 
 '.mde-preview':
     'ctrl-n': 'sidetoc:jump-next'
@@ -61,6 +63,7 @@ keymap.cson
 | -------------- | ------- |
 | highlightColor | #C5EAFB |
 | width          | 200     |
+| textwrap       | true    |
 
 config.cson
 
@@ -75,6 +78,10 @@ sidetoc:
 * Content in html tags (syntax).
 
 ## Changelog
+
+1.16.0 -  2022/01/xx
+
+- added textwrap option and command.
 
 1.15.0 -  2022/01/05
 
@@ -153,7 +160,7 @@ sidetoc:
 - [ ] 入力のたびに再描画が走る
   - 保存時に反映するだけにしたいが API が無い？
   - 処理時間は 0 〜 2ms なので問題はなさそう
-- [ ] プレビュー時のハイライト表示
+- [ ] プレビュー時のハイライト表示がされないときがある
 
 ### Done
 
