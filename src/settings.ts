@@ -10,7 +10,7 @@ class Settings {
   hicolor: string = "";
   currentWidth: number = 0;
   _settingWidth: number = 0;
-  isEllipsis: boolean = false;
+  isTextwrap: boolean = true;
   sidetocPanePadding = 10;
 
   constructor() {
@@ -33,8 +33,11 @@ class Settings {
       this.changeCurrentWidth(WidthChangeMode.Reset);
     });
     // ellipsis
-    inkdrop.config.observe("sidetoc.ellipsis", (newValue: boolean) => {
-      this.isEllipsis = newValue;
+    inkdrop.config.observe("sidetoc.textwrap", (newValue: boolean) => {
+      if (newValue == undefined) {
+        newValue = true;
+      }
+      this.isTextwrap = newValue;
     });
     // wrapper's padding
     document.documentElement.style.setProperty(
@@ -69,6 +72,12 @@ class Settings {
       "--inkdrop-sidetoc-pane-wrapper-width",
       (this.currentWidth - 2 * this.sidetocPanePadding).toString(10) + "px"
     );
+  };
+  /*
+   *
+   */
+  toggleTextWrap = () => {
+    this.isTextwrap = !this.isTextwrap;
   };
 }
 
