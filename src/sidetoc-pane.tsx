@@ -106,6 +106,9 @@ export default class SideTocPane extends React.Component<Props, State> {
       case "ResetWidth":
         this.handleChangeWidth(WidthChangeMode.Reset);
         break;
+      case "ToggleTextwrap":
+        this.handleToggleTextwrap();
+        break;
 
       default:
     }
@@ -128,6 +131,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     let className = "sidetoc-pane";
     if (!this.state.visibility || this.state.headers.length == 0) {
       className = "sidetoc-pane-hide";
+    } else if (!Settings.isTextwrap) {
+      className += " sidetoc-pane-nowrap";
     }
 
     const statusBar = document.querySelector(".editor-status-bar-layout");
@@ -490,6 +495,13 @@ export default class SideTocPane extends React.Component<Props, State> {
    *
    */
   handleChangeWidth = (mode: WidthChangeMode) => Settings.changeCurrentWidth(mode);
+  /*
+   *
+   */
+  handleToggleTextwrap = () => {
+    Settings.toggleTextWrap();
+    this.commit({});
+  };
   /*
    * convert to style
    */

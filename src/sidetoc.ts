@@ -26,6 +26,7 @@ class SideTocPlugin {
         "sidetoc:width-increase": increaseWidth,
         "sidetoc:width-decrease": decreaseWidth,
         "sidetoc:width-reset": resetWidth,
+        "sidetoc:wraptext-toggle": toggleTextwrap,
       })
     );
   }
@@ -53,6 +54,7 @@ const jumpToPrev = () => dispatcher.dispatch(<DispatchAction>{ type: "JumpToPrev
 const increaseWidth = () => dispatcher.dispatch(<DispatchAction>{ type: "IncreaseWidth" });
 const decreaseWidth = () => dispatcher.dispatch(<DispatchAction>{ type: "DecreaseWidth" });
 const resetWidth = () => dispatcher.dispatch(<DispatchAction>{ type: "ResetWidth" });
+const toggleTextwrap = () => dispatcher.dispatch(<DispatchAction>{ type: "ToggleTextwrap" });
 
 const plugin = new SideTocPlugin();
 module.exports = {
@@ -71,6 +73,11 @@ module.exports = {
       title: "increase pane width",
       type: "integer",
       default: 10,
+    },
+    textwrap: {
+      title: "wrap overflow text",
+      type: "boolean",
+      default: true,
     },
   },
   activate() {
