@@ -79,9 +79,10 @@ sidetoc:
 
 ## Changelog
 
-1.16.0 -  2022/01/xx
+1.16.0 -  2022/01/22
 
 - added textwrap option and command.
+- security update.
 
 1.15.0 -  2022/01/05
 
