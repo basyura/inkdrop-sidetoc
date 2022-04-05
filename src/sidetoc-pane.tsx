@@ -241,6 +241,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     });
 
     this.commit(newState);
+
+    return newState;
   };
   /*
    *
@@ -271,7 +273,14 @@ export default class SideTocPane extends React.Component<Props, State> {
   handleCmUpdate = () => {
     if (this.props.editingNote._id != this.paneState.noteId) {
       this.paneState.noteId = this.props.editingNote._id;
-      this.updateState();
+      this.paneState.previewCurrent = "";
+      const newState = this.updateState();
+      if (newState != null && newState.headers.length > 0) {
+        this.paneState.previewCurrent = "_" + newState.headers[0].str.replace(/ /g, "");
+        setTimeout(() => {
+          this.handleCursorActivity(inkdrop.getActiveEditor().cm, true);
+        }, 100);
+      }
       return;
     }
 
@@ -292,9 +301,10 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  handleCursorActivity = (cm: CodeMirror.Editor) => {
+  handleCursorActivity = (cm: CodeMirror.Editor, forcibly: ?boolean) => {
     const cur = cm.getCursor();
-    if (cur.line == this.paneState.lastLine) {
+    forcibly = forcibly ?? false;
+    if (!forcibly && cur.line == this.paneState.lastLine) {
       return;
     }
     this.paneState.lastLine = cur.line;
@@ -371,7 +381,6 @@ export default class SideTocPane extends React.Component<Props, State> {
         const top = header.getBoundingClientRect().top;
         // maybe under 10
         if (top - diff < 50) {
-          console.log("handleJumpToNext1");
           preview.scrollTop = this.paneState.previewHeaders[i + 1].offsetTop - preview.offsetTop;
           break;
         }
@@ -428,13 +437,13 @@ export default class SideTocPane extends React.Component<Props, State> {
       this.handlePreviewUpdate($(".editor"));
     }
 
+    const diff = document.querySelector(".mde-preview")!.getBoundingClientRect().y;
     // analyze current header
     for (let i = this.paneState.previewHeaders.length - 1; i >= 0; i--) {
       const header = this.paneState.previewHeaders[i];
       const top = header.getBoundingClientRect().top;
-      const diff = document.querySelector(".mde-preview")!.getBoundingClientRect().y;
       // create current header key
-      if (top - diff < 100) {
+      if (top - diff < 50) {
         let current = "";
         let k = 0;
         for (k = 0; k <= i; k++) {
