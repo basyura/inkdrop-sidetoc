@@ -301,9 +301,8 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  handleCursorActivity = (cm: CodeMirror.Editor, forcibly: ?boolean) => {
+  handleCursorActivity = (cm: CodeMirror.Editor, forcibly: boolean = false) => {
     const cur = cm.getCursor();
-    forcibly = forcibly ?? false;
     if (!forcibly && cur.line == this.paneState.lastLine) {
       return;
     }
