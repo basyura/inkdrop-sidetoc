@@ -44,14 +44,15 @@ export default class SideTocPane extends React.Component<Props, State> {
     if (editor != null) {
       this.attatchEvents(editor);
     } else {
-      inkdrop.onEditorLoad((e) => this.attatchEvents(e));
+      inkdrop.onEditorLoad((e) => {
+        this.attatchEvents(e);
+      });
     }
   }
   /*
    *
    */
   componentDidUpdate() {
-    this.log(() => "★★★ componentDidUpdate");
     const cur = this.paneState.curSectionRef.current;
     if (cur == null) {
       return;
@@ -207,6 +208,13 @@ export default class SideTocPane extends React.Component<Props, State> {
       subtree: true,
       attributes: true,
     });
+
+    // observe ui theme
+    this.paneState.bodyObserver = new MutationObserver((_) => {
+      Settings.refresh();
+      this.updateState();
+    });
+    this.paneState.bodyObserver.observe(document.body, { attributes: true });
   }
   /*
    *
@@ -219,6 +227,7 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     inkdrop.window.off("resize", this.handleWindowResize);
     this.paneState.observer!.disconnect();
+    this.paneState.bodyObserver!.disconnect();
 
     // TODO
     //const preview = editorEle.querySelector(".mde-preview");
@@ -518,6 +527,7 @@ export default class SideTocPane extends React.Component<Props, State> {
       marginLeft: 20 * (header.count - this.state.min),
       cursor: "pointer",
       backgroundColor: "",
+      color: "",
     };
 
     let isCurrent = false;
@@ -531,7 +541,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
 
     if (isCurrent) {
-      style.backgroundColor = Settings.hicolor;
+      style.color = Settings.hiFgColor;
+      style.backgroundColor = Settings.hiBgColor;
     }
 
     return { style, isCurrent };

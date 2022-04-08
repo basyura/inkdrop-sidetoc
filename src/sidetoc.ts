@@ -59,10 +59,16 @@ const toggleTextwrap = () => dispatcher.dispatch(<DispatchAction>{ type: "Toggle
 const plugin = new SideTocPlugin();
 module.exports = {
   config: {
-    highlightColor: {
-      title: "highlight color",
+    // #C5EAFB
+    highlightBgColor: {
+      title: "highlight background color (css variables | color name | #FFFFFF)",
       type: "string",
-      default: "#C5EAFB",
+      default: "--note-list-view-item-active-background",
+    },
+    highlightFgColor: {
+      title: "highlight foreground color (css variables | color name | #FFFFFF)",
+      type: "string",
+      default: "--note-list-view-item-active-color",
     },
     width: {
       title: "side pane width",

@@ -7,21 +7,28 @@ declare var inkdrop: Inkdrop;
 class Settings {
   DefaultWidth = 200;
   fontFamily: string = "";
-  hicolor: string = "";
+  hiBgColor: string = "";
+  hiFgColor: string = "";
   currentWidth: number = 0;
   _settingWidth: number = 0;
   isTextwrap: boolean = true;
   sidetocPanePadding = 10;
+  computedStyle: CSSStyleDeclaration;
 
   constructor() {
+    // to get css value
+    this.computedStyle = getComputedStyle(document.body);
     // fontFamily
     inkdrop.config.observe("editor.fontFamily", (newValue: string) => {
       this.fontFamily = newValue;
     });
-    // highlight
-    inkdrop.config.observe("sidetoc.highlightColor", (newValue: string) => {
-      this.hicolor = newValue;
-      document.documentElement.style.setProperty("--inkdrop-sidetoc-highlight-color", this.hicolor);
+    // highlight BG
+    inkdrop.config.observe("sidetoc.highlightBgColor", (newValue: string) => {
+      this._changeBgColor(newValue);
+    });
+    // highlight FG
+    inkdrop.config.observe("sidetoc.highlightFgColor", (newValue: string) => {
+      this._changeFgColor(newValue);
     });
     // width
     inkdrop.config.observe("sidetoc.width", (newValue: number) => {
@@ -44,6 +51,15 @@ class Settings {
       "--inkdrop-sidetoc-padding",
       this.sidetocPanePadding.toString(10) + "px"
     );
+  }
+  /*
+   *
+   */
+  refresh() {
+    // to get css value
+    this.computedStyle = getComputedStyle(document.body);
+    this._changeBgColor(inkdrop.config.get("sidetoc.highlightBgColor"));
+    this._changeFgColor(inkdrop.config.get("sidetoc.highlightFgColor"));
   }
   /*
    *
@@ -79,6 +95,32 @@ class Settings {
   toggleTextWrap = () => {
     this.isTextwrap = !this.isTextwrap;
   };
+  /*
+   *
+   */
+  _changeBgColor(newValue: string) {
+    if (newValue == null) {
+      return;
+    }
+    if (newValue.startsWith("--")) {
+      newValue = this.computedStyle.getPropertyValue(newValue);
+    }
+    this.hiBgColor = newValue;
+    document.documentElement.style.setProperty("--inkdrop-sidetoc-highlight-bg-color", newValue);
+  }
+  /*
+   *
+   */
+  _changeFgColor(newValue: string) {
+    if (newValue == null) {
+      return null;
+    }
+    if (newValue.startsWith("--")) {
+      newValue = this.computedStyle.getPropertyValue(newValue);
+    }
+    this.hiFgColor = newValue;
+    document.documentElement.style.setProperty("--inkdrop-sidetoc-highlight-fg-color", newValue);
+  }
 }
 
 export default new Settings();

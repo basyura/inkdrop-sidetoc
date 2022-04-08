@@ -18,6 +18,7 @@ export class PaneState {
   dispatchId: string;
   cursorTime: Date | null;
   observer: MutationObserver | null;
+  bodyObserver: MutationObserver | null;
   firstPreview: boolean;
 
   constructor() {
@@ -34,6 +35,7 @@ export class PaneState {
     this.dispatchId = "";
     this.cursorTime = null;
     this.observer = null;
+    this.bodyObserver = null;
     this.firstPreview = true;
   }
 }
