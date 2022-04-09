@@ -23,7 +23,7 @@ declare var inkdrop: Inkdrop;
 export default class SideTocPane extends React.Component<Props, State> {
   // internal state
   paneState = new PaneState();
-  //
+  // element cache
   statusBar: Element | null = null;
   /*
    *
@@ -39,15 +39,15 @@ export default class SideTocPane extends React.Component<Props, State> {
     };
 
     this.paneState.dispatchId = dispatcher.register((action: DispatchAction) =>
-      this.dispachAction(action)
+      this.dispatchAction(action)
     );
 
     const editor = inkdrop.getActiveEditor();
     if (editor != null) {
-      this.attatchEvents(editor);
+      this.attachEvents(editor);
     } else {
       inkdrop.onEditorLoad((e) => {
-        this.attatchEvents(e);
+        this.attachEvents(e);
       });
     }
   }
@@ -78,12 +78,12 @@ export default class SideTocPane extends React.Component<Props, State> {
       return;
     }
 
-    this.dettatchEvents(editor);
+    this.detachEvents(editor);
   }
   /*
    *
    */
-  dispachAction(action: DispatchAction) {
+  dispatchAction(action: DispatchAction) {
     switch (action.type) {
       case "Toggle":
         this.handleVisibility();
@@ -173,7 +173,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  attatchEvents(editor: Editor) {
+  attachEvents(editor: Editor) {
     this.statusBar = document.querySelector(
       "#app-container .main-layout .editor-layout .editor-status-bar-layout"
     );
@@ -224,7 +224,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  dettatchEvents(editor: Editor) {
+  detachEvents(editor: Editor) {
     const { cm } = editor;
     cm.off("cursorActivity", this.handleCursorActivity);
     cm.off("update", this.handleCmUpdate);
