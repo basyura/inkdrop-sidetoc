@@ -59,19 +59,29 @@ keymap.cson
 
 ## Settings
 
-| key            | default |
-| -------------- | ------- |
-| highlightColor | #C5EAFB |
-| width          | 200     |
-| textwrap       | true    |
+| key                | default                                 |
+| ------------------ | --------------------------------------- |
+| ~~highlightColor~~ | ~~#C5EAFB~~  - Obsolete!!                  |
+| highlightBgColor   | --note-list-view-item-active-background |
+| highlightFgColor   | --note-list-view-item-active-color      |
+| width              | 200                                     |
+| textwrap           | true                                    |
 
 config.cson
 
 ```cson
 sidetoc:
-  highlightColor: "#C5EAFB"
+  highlightBgColor: "#C5EAFB"
+  highlightFgColor: "black"
   width: 200
+  textwrap: false
 ```
+
+Settings UI
+
+
+![setting1](https://raw.githubusercontent.com/basyura/inkdrop-sidetoc/master/images/setting1.png)
+![setting2](https://raw.githubusercontent.com/basyura/inkdrop-sidetoc/master/images/setting2.png)
 
 ## Not supported
 
