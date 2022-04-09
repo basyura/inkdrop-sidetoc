@@ -407,7 +407,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     const header = this.getCurrentHeader(line);
     const next = this.getNextHeader(header);
     if (next != null) {
-      cm.scrollTo(0, 99999);
+      const vp = cm.getViewport();
+      cm.setCursor(next.rowStart + Math.round((vp.to - vp.from) / 2), 0);
       cm.setCursor(next.rowStart, 0);
       this.handleCursorActivity(cm);
     }
