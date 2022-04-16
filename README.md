@@ -89,6 +89,11 @@ Settings UI
 
 ## Changelog
 
+2.0.0 -  2022/04/16
+
+- Change the color for each theme.
+- Obsolete the highlightColor setting.
+
 1.16.0 -  2022/01/22
 
 - added textwrap option and command.
