@@ -1,5 +1,6 @@
 "use babel";
 import CodeMirror from "codemirror";
+import type { Note } from "inkdrop-model";
 
 export interface Inkdrop {
   window: any;
@@ -30,7 +31,7 @@ export interface HeaderItem {
 }
 
 export interface Props {
-  editingNote: any;
+  editingNote: Note;
 }
 
 export interface State {
