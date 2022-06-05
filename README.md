@@ -83,6 +83,13 @@ Settings UI
 ![setting1](https://raw.githubusercontent.com/basyura/inkdrop-sidetoc/master/images/setting1.png)
 ![setting2](https://raw.githubusercontent.com/basyura/inkdrop-sidetoc/master/images/setting2.png)
 
+## Style Tweaks
+
+https://docs.inkdrop.app/manual/style-tweaks
+
+> If you want to apply quick-and-dirty personal styling changes without creating an entire theme that you intend to publish,
+> you can add styles to the styles.less file in your data directory. It does not exist by default.
+
 ## Not supported
 
 * Content in html tags (syntax).
