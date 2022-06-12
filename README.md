@@ -96,6 +96,11 @@ https://docs.inkdrop.app/manual/style-tweaks
 
 ## Changelog
 
+2.0.1 -  2022/06/12
+
+- improved readme (style teaks).
+- security update.
+
 2.0.0 -  2022/04/16
 
 - Change the color for each theme.
