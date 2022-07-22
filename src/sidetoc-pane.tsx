@@ -31,7 +31,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   componentWillMount() {
     // state of this component
     this.state = {
-      visibility: true,
+      visibility: Settings.isDefaultVisible,
       headers: [],
       currentHeader: null,
       min: 0,

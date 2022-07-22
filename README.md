@@ -66,6 +66,7 @@ keymap.cson
 | highlightFgColor   | --note-list-view-item-active-color      |
 | width              | 200                                     |
 | textwrap           | true                                    |
+| defaultVisible     | true                                    |
 
 config.cson
 
@@ -75,6 +76,7 @@ sidetoc:
   highlightFgColor: "black"
   width: 200
   textwrap: false
+  defaultVisible: true
 ```
 
 Settings UI
