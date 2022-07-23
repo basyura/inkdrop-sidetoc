@@ -85,6 +85,11 @@ module.exports = {
       type: "boolean",
       default: true,
     },
+    defaultVisible: {
+      title: "show sidetoc by default",
+      type: "boolean",
+      default: true,
+    },
   },
   activate() {
     plugin.activate();

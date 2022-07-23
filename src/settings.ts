@@ -12,6 +12,7 @@ class Settings {
   currentWidth: number = 0;
   _settingWidth: number = 0;
   isTextwrap: boolean = true;
+  isDefaultVisible: boolean = true;
   sidetocPanePadding = 10;
   computedStyle: CSSStyleDeclaration;
 
@@ -45,6 +46,13 @@ class Settings {
         newValue = true;
       }
       this.isTextwrap = newValue;
+    });
+    // visibility
+    inkdrop.config.observe("sidetoc.defaultVisible", (newValue: boolean) => {
+      if (newValue == undefined) {
+        newValue = true;
+      }
+      this.isDefaultVisible = newValue;
     });
     // wrapper's padding
     document.documentElement.style.setProperty(
