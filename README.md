@@ -98,6 +98,10 @@ https://docs.inkdrop.app/manual/style-tweaks
 
 ## Changelog
 
+2.1.1 -  2023/02/25
+
+- security fix
+
 2.1.0 -  2022/07/23
 
 - add defaultVisible option (by Yuya TAMANO)
