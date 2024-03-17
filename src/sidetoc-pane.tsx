@@ -64,6 +64,13 @@ export default class SideTocPane extends React.Component<Props, State> {
     if (pane != null) {
       pane.scrollTop = cur.offsetTop - pane.offsetTop;
     }
+
+    if (this.state.visibility && this.state.headers.length != 0) {
+      console.log("change width");
+      const mdeLayout = document.querySelector(".mde-layout")!;
+      const editor = document.querySelector<HTMLDivElement>(".editor")!;
+      editor.style.width = mdeLayout.clientWidth - Settings.currentWidth + "px";
+    }
   }
   /*
    *
