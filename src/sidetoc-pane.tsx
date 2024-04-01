@@ -354,6 +354,16 @@ export default class SideTocPane extends React.Component<Props, State> {
     // for preview mode
     if (this.paneState.isPreview) {
       const preview = document.querySelector<HTMLElement>(".mde-preview")!;
+      const meta = document.querySelector<HTMLElement>(".metadata");
+
+      if (meta != null && meta.clientHeight != 0 && this.paneState.previewHeaders.length > 1) {
+        const header = this.paneState.previewHeaders[0];
+        if (preview.scrollTop <= header.offsetTop) {
+          preview.scrollTop = 0;
+          return;
+        }
+      }
+
       for (let i = 1; i < this.paneState.previewHeaders.length; i++) {
         const header = this.paneState.previewHeaders[i];
         const top = header.getBoundingClientRect().top;
@@ -388,6 +398,17 @@ export default class SideTocPane extends React.Component<Props, State> {
     // for preview mode
     if (this.paneState.isPreview) {
       const preview = document.querySelector<HTMLElement>(".mde-preview")!;
+      const meta = document.querySelector<HTMLElement>(".metadata");
+
+      // meta div
+      if (meta != null && meta.clientHeight != 0 && this.paneState.previewHeaders.length > 1) {
+        const header = this.paneState.previewHeaders[0];
+        if (preview.scrollTop < header.clientHeight) {
+          preview.scrollTop = header.offsetTop - preview.offsetTop;
+          return;
+        }
+      }
+
       const diff = preview.getBoundingClientRect().y;
       for (let i = this.paneState.previewHeaders.length - 2; i >= 0; i--) {
         const header = this.paneState.previewHeaders[i];
