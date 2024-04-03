@@ -271,15 +271,10 @@ export default class SideTocPane extends React.Component<Props, State> {
    *
    */
   handleVisibility = () => {
-    // show to hide
-    if (this.state.visibility) {
-      this.commit({ visibility: false });
-      inkdrop.getActiveEditor().forceUpdate();
-      return;
-    }
-    // hide to show and update section
-    this.updateState({ visibility: true });
-    inkdrop.getActiveEditor().forceUpdate();
+    this.commit({ visibility: !this.state.visibility });
+    setTimeout(() => {
+      inkdrop.commands.dispatch(document.body, "editor:refresh");
+    }, 10);
   };
   /*
    *
