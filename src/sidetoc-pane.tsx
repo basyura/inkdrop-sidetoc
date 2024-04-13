@@ -142,12 +142,15 @@ export default class SideTocPane extends React.Component<Props, State> {
       fontFamily: Settings.fontFamily,
     };
 
-    const wrapperStyle = {
-      height:
-        inkdrop.window.getSize()[1] -
-        this.paneState.heightDiff -
-        (this.statusBar != null ? this.statusBar.clientHeight : 0),
-    };
+    let wrapperStyle: { [key: string]: any } = {};
+    if (this.state.visibility) {
+      const pane = document.querySelector<HTMLDivElement>(
+        "#app-container > .main-layout > .editor-layout > .mde-layout > .sidetoc-pane"
+      );
+      if (pane != null) {
+        wrapperStyle.height = pane.offsetHeight - 20;
+      }
+    }
 
     // current header key for preview which join header text with "_".
     let current = "";
@@ -187,8 +190,6 @@ export default class SideTocPane extends React.Component<Props, State> {
     cm.on("scroll", this.handleCmScroll);
 
     // for sidetoc overflow-y
-    const winHeight = inkdrop.window.getSize()[1];
-    this.paneState.heightDiff = winHeight - cm.getScrollInfo().clientHeight;
     inkdrop.window.on("resize", this.handleWindowResize);
 
     // hook preview scroll

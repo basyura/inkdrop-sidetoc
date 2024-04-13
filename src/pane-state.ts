@@ -7,7 +7,6 @@ export class PaneState {
   content: any;
   lastLine: number;
   noteId: string;
-  heightDiff: number;
   isPreview: boolean;
   // preview headers. this value is cleared with null when mode change to preview.
   previewHeaders: HTMLElement[];
@@ -24,7 +23,6 @@ export class PaneState {
   constructor() {
     this.lastLine = -1;
     this.noteId = "";
-    this.heightDiff = 0;
     this.isPreview = false;
     // preview headers. this value is cleared with null when mode change to preview.
     this.previewHeaders = [];
