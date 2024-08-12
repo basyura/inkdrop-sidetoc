@@ -61,12 +61,13 @@ keymap.cson
 
 | key                | default                                 |
 | ------------------ | --------------------------------------- |
-| ~~highlightColor~~ | ~~#C5EAFB~~  - Obsolete!!                  |
+| ~~highlightColor~~ | ~~#C5EAFB~~  - Obsolete!!               |
 | highlightBgColor   | --note-list-view-item-active-background |
 | highlightFgColor   | --note-list-view-item-active-color      |
 | width              | 200                                     |
 | textwrap           | true                                    |
 | defaultVisible     | true                                    |
+| showIfNoHeader     | false                                   |
 
 config.cson
 
@@ -77,6 +78,7 @@ sidetoc:
   width: 200
   textwrap: false
   defaultVisible: true
+  showIfNoHeader: true
 ```
 
 Settings UI
