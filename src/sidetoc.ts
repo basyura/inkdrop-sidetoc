@@ -90,6 +90,11 @@ module.exports = {
       type: "boolean",
       default: true,
     },
+    showIfNoHeader: {
+      title: "show the area even if there is no heade",
+      type: "boolean",
+      default: false,
+    },
   },
   activate() {
     plugin.activate();

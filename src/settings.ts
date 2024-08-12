@@ -13,6 +13,7 @@ class Settings {
   _settingWidth: number = 0;
   isTextwrap: boolean = true;
   isDefaultVisible: boolean = true;
+  isShowIfNoHeader: boolean = false;
   sidetocPanePadding = 10;
   computedStyle: CSSStyleDeclaration;
 
@@ -53,6 +54,13 @@ class Settings {
         newValue = true;
       }
       this.isDefaultVisible = newValue;
+    });
+    // show if no header
+    inkdrop.config.observe("sidetoc.showIfNoHeader", (newValue: boolean) => {
+      if (newValue == undefined) {
+        newValue = false;
+      }
+      this.isShowIfNoHeader = newValue;
     });
     // wrapper's padding
     document.documentElement.style.setProperty(

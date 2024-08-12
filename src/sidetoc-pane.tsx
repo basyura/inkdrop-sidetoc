@@ -15,6 +15,7 @@ import {
   State,
   WidthChangeMode,
 } from "./types";
+import { settings } from "cluster";
 
 const $ = (query: string) => document.querySelector(query);
 
@@ -131,8 +132,9 @@ export default class SideTocPane extends React.Component<Props, State> {
    *
    */
   createContent() {
+    const isShowPane = this.isShowPane();
     let className = "sidetoc-pane";
-    if (!this.state.visibility || this.state.headers.length == 0) {
+    if (!isShowPane) {
       className = "sidetoc-pane-hide";
     } else if (!Settings.isTextwrap) {
       className += " sidetoc-pane-nowrap";
@@ -143,7 +145,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     };
 
     let wrapperStyle: { [key: string]: any } = {};
-    if (this.state.visibility) {
+    if (isShowPane) {
       const pane = document.querySelector<HTMLDivElement>(
         "#app-container > .main-layout > .editor-layout > .mde-layout > .sidetoc-pane"
       );
@@ -652,6 +654,20 @@ export default class SideTocPane extends React.Component<Props, State> {
     // this.log(() => "★★★ commit");
     this.paneState.content = null;
     this.setState(state);
+  }
+  /*
+   *
+   */
+  isShowPane(): boolean {
+    if (!this.state.visibility) {
+      return false;
+    }
+
+    if (Settings.isShowIfNoHeader) {
+      return true;
+    }
+
+    return this.state.headers.length != 0;
   }
   /*
    *

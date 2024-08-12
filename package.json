@@ -10,7 +10,8 @@
     "inkdrop": "^4.x"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "build-watch": "tsc --watch"
   },
   "dependencies": {
     "flux": "^4.0.3",
