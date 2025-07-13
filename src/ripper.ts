@@ -70,10 +70,15 @@ export function parse(props: Props): ParseResult {
       i++;
     }
     
-    // create header item
+    // create header item - optimized string processing
+    let headerStartIndex = i;
+    while (headerStartIndex < vLength && v[headerStartIndex] === " ") {
+      headerStartIndex++;
+    }
+    
     const header: HeaderItem = {
       count: i,
-      str: v.replace(/^#*? /, ""),
+      str: v.substring(headerStartIndex),
       rowStart: row,
       rowEnd: 0,
       index: index,

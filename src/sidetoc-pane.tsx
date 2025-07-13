@@ -82,6 +82,28 @@ export default class SideTocPane extends React.Component<Props, State> {
       }
     }) as T;
   };
+  
+  // DOM element cache methods for performance
+  private getPaneElement(): HTMLElement | null {
+    if (!this.paneState.cachedPaneElement) {
+      this.paneState.cachedPaneElement = document.querySelector<HTMLElement>(
+        "#app-container > .main-layout > .editor-layout > .mde-layout > .sidetoc-pane"
+      );
+    }
+    return this.paneState.cachedPaneElement;
+  }
+  
+  private getEditorElement(): Element | null {
+    if (!this.paneState.cachedEditorElement) {
+      this.paneState.cachedEditorElement = document.querySelector(".editor");
+    }
+    return this.paneState.cachedEditorElement;
+  }
+  
+  private invalidateElementCache(): void {
+    this.paneState.cachedPaneElement = null;
+    this.paneState.cachedEditorElement = null;
+  }
   /*
    *
    */
@@ -214,9 +236,7 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     let wrapperStyle: { [key: string]: any } = {};
     if (isShowPane) {
-      const pane = document.querySelector<HTMLDivElement>(
-        "#app-container > .main-layout > .editor-layout > .mde-layout > .sidetoc-pane"
-      );
+      const pane = this.getPaneElement();
       if (pane != null) {
         wrapperStyle.height = pane.offsetHeight - 20;
       }
@@ -229,8 +249,10 @@ export default class SideTocPane extends React.Component<Props, State> {
       <div className={className} style={style}>
         <div className="sidetoc-pane-wrapper" style={wrapperStyle}>
           {this.state.headers.map((v: HeaderItem, index: number) => {
-            current += "_" + v.str.replace(/ /g, "");
-            const { style, isCurrent } = this.toStyle(v, current);
+            // Optimized string processing - avoid regex replace
+            const cleanStr = v.str.split(' ').join('');
+            current += "_" + cleanStr;
+            const { style, isCurrent } = this.toStyleCached(v, current);
             const ref = isCurrent ? this.paneState.curSectionRef : null;
             return (
               <HeaderListItem
@@ -268,7 +290,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     inkdrop.window.on("resize", this.handleWindowResize);
 
     // hook preview scroll
-    const editorEle = $(".editor");
+    const editorEle = this.getEditorElement();
     if (editorEle == null) {
       return;
     }
@@ -545,7 +567,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     // for first preview
     if (this.paneState.firstPreview) {
       this.paneState.firstPreview = false;
-      this.handlePreviewUpdate($(".editor"));
+      this.handlePreviewUpdate(this.getEditorElement());
     }
 
     const previewElement = document.querySelector(".mde-preview");
@@ -590,6 +612,8 @@ export default class SideTocPane extends React.Component<Props, State> {
       return;
     }
 
+    // Invalidate DOM cache on resize as layout may have changed
+    this.invalidateElementCache();
     this.updateState();
   };
   /*
@@ -626,7 +650,34 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.commit({});
   };
   /*
-   * convert to style
+   * convert to style with caching for object pooling
+   */
+  toStyleCached = (header: HeaderItem, current: string) => {
+    // Generate cache key based on style-affecting properties
+    const cacheKey = `${header.count}-${this.state.min}-${current}-${this.paneState.isPreview ? this.paneState.previewCurrent : this.state.currentHeader?.index || 'none'}`;
+    
+    // Check cache first
+    if (this.paneState.styleCache.has(cacheKey)) {
+      return this.paneState.styleCache.get(cacheKey);
+    }
+    
+    // Calculate style
+    const result = this.toStyle(header, current);
+    
+    // Cache the result
+    this.paneState.styleCache.set(cacheKey, result);
+    
+    // Keep cache size reasonable (LRU-like behavior)
+    if (this.paneState.styleCache.size > 100) {
+      const firstKey = this.paneState.styleCache.keys().next().value;
+      this.paneState.styleCache.delete(firstKey);
+    }
+    
+    return result;
+  };
+
+  /*
+   * convert to style (original implementation)
    */
   toStyle = (header: HeaderItem, current: string) => {
     let style = {
@@ -746,6 +797,12 @@ export default class SideTocPane extends React.Component<Props, State> {
     if (state.headers !== undefined || state.visibility !== undefined || state.currentHeader !== undefined) {
       this.paneState.content = null;
     }
+    
+    // Clear style cache when state changes that affect styling
+    if (state.headers !== undefined || state.currentHeader !== undefined || state.min !== undefined) {
+      this.paneState.styleCache.clear();
+    }
+    
     this.setState(state);
   }
   /*
