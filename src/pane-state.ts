@@ -20,6 +20,11 @@ export class PaneState {
   bodyObserver: MutationObserver | null;
   firstPreview: boolean;
 
+  // render optimization
+  lastRenderHeaders: any = null;
+  lastRenderVisibility: boolean | null = null;
+  lastRenderCurrentHeader: any = null;
+
   constructor() {
     this.lastLine = -1;
     this.noteId = "";
@@ -35,5 +40,9 @@ export class PaneState {
     this.observer = null;
     this.bodyObserver = null;
     this.firstPreview = true;
+    // render optimization
+    this.lastRenderHeaders = null;
+    this.lastRenderVisibility = null;
+    this.lastRenderCurrentHeader = null;
   }
 }
