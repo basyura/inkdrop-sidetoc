@@ -1,10 +1,37 @@
 "use babel";
 
 import { HeaderItem, ParseResult, Props } from "./types";
+
+// Cache for parsed headers
+const headerCache = new Map<number, ParseResult>();
+let lastBodyHash: number | null = null;
+
 /*
- * extract # headers
+ * Create a simple hash of the content for cache invalidation
+ */
+function hashCode(str: string): number {
+  let hash = 0;
+  if (str.length === 0) return hash;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return hash;
+}
+
+/*
+ * extract # headers with caching
  */
 export function parse(props: Props): ParseResult {
+  const body = props.editingNote.body;
+  const bodyHash = hashCode(body);
+  
+  // Return cached result if content hasn't changed
+  if (lastBodyHash === bodyHash && headerCache.has(bodyHash)) {
+    return headerCache.get(bodyHash)!;
+  }
+  
   // section list which starting with #.
   let headers: HeaderItem[] = [];
   // minimum section level
@@ -14,29 +41,35 @@ export function parse(props: Props): ParseResult {
   let index = 0;
   let isInCodeBlock = false;
   const codeBlockReg = /^\s{0,}```/;
-
-  props.editingNote.body.split("\n").forEach((v: string) => {
+  
+  // Split only once and cache the lines
+  const lines = body.split("\n");
+  const lineCount = lines.length;
+  
+  for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
+    const v = lines[lineIndex];
     row++;
-
+    
     // skip code block
-    if (v.match(codeBlockReg)) {
+    if (codeBlockReg.test(v)) {
       isInCodeBlock = !isInCodeBlock;
-      return;
+      continue;
     } else if (isInCodeBlock) {
-      return;
+      continue;
     }
-
+    
     // check
     if (!isValid(v)) {
-      return;
+      continue;
     }
-    // count of #
+    
+    // count of # - optimized loop
     let i = 0;
-    for (; i < v.length; i++) {
-      if (v[i] != "#") {
-        break;
-      }
+    const vLength = v.length;
+    while (i < vLength && v[i] === "#") {
+      i++;
     }
+    
     // create header item
     const header: HeaderItem = {
       count: i,
@@ -46,22 +79,36 @@ export function parse(props: Props): ParseResult {
       index: index,
     };
     index++;
+    
     // apply header end row
     if (before != null) {
       before.rowEnd = row - 1;
     }
     before = header;
     headers.push(header);
+    
     if (i < min) {
       min = i;
     }
-  });
-
+  }
+  
   if (headers.length != 0) {
     headers[headers.length - 1].rowEnd = row;
   }
-
-  return { headers: headers, min: min };
+  
+  const result: ParseResult = { headers: headers, min: min };
+  
+  // Cache the result
+  headerCache.set(bodyHash, result);
+  lastBodyHash = bodyHash;
+  
+  // Keep cache size reasonable (last 10 documents)
+  if (headerCache.size > 10) {
+    const firstKey = headerCache.keys().next().value;
+    headerCache.delete(firstKey);
+  }
+  
+  return result;
 }
 /*
  *

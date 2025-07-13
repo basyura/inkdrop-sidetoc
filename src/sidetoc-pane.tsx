@@ -21,11 +21,67 @@ const $ = (query: string) => document.querySelector(query);
 
 declare var inkdrop: Inkdrop;
 
+// Memoized header list item component for performance
+interface HeaderListItemProps {
+  header: HeaderItem;
+  style: React.CSSProperties;
+  onClick: (header: HeaderItem) => void;
+  isCurrent: boolean;
+}
+
+const HeaderListItem = React.memo(
+  React.forwardRef<HTMLLIElement, HeaderListItemProps>(
+    ({ header, style, onClick, isCurrent }, ref) => (
+      <li 
+        style={style} 
+        onClick={() => onClick(header)} 
+        ref={isCurrent ? ref : null}
+      >
+        {header.str}
+      </li>
+    )
+  ),
+  (prevProps, nextProps) => {
+    // Only prevent re-render if header content is the same AND isCurrent status unchanged
+    // Always re-render when isCurrent changes to update background color
+    if (prevProps.isCurrent !== nextProps.isCurrent) {
+      return false; // Force re-render when active state changes
+    }
+    
+    // For performance, skip deep style comparison and only check header identity
+    return prevProps.header === nextProps.header;
+  }
+);
+
 export default class SideTocPane extends React.Component<Props, State> {
   // internal state
   paneState = new PaneState();
   // element cache
   statusBar: Element | null = null;
+  
+  // Utility functions for performance optimization
+  private debounce = <T extends (...args: any[]) => void>(func: T, wait: number): T => {
+    let timeout: NodeJS.Timeout | undefined;
+    return ((...args: Parameters<T>) => {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    }) as T;
+  };
+  
+  private throttle = <T extends (...args: any[]) => void>(func: T, limit: number): T => {
+    let inThrottle: boolean;
+    return ((...args: Parameters<T>) => {
+      if (!inThrottle) {
+        func(...args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+      }
+    }) as T;
+  };
   /*
    *
    */
@@ -118,15 +174,27 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
   }
   /*
-   *
+   * Optimized render with better caching strategy
    */
   render() {
-    // use cache
-    if (this.paneState.content == null) {
+    // Check if we need to regenerate content
+    if (this.paneState.content == null || this.shouldUpdateContent()) {
       this.paneState.content = this.createContent();
+      this.paneState.lastRenderHeaders = this.state.headers;
+      this.paneState.lastRenderVisibility = this.state.visibility;
+      this.paneState.lastRenderCurrentHeader = this.state.currentHeader;
     }
 
     return this.paneState.content;
+  }
+  
+  /*
+   * Check if content should be updated
+   */
+  private shouldUpdateContent(): boolean {
+    return this.paneState.lastRenderHeaders !== this.state.headers ||
+           this.paneState.lastRenderVisibility !== this.state.visibility ||
+           this.paneState.lastRenderCurrentHeader !== this.state.currentHeader;
   }
   /*
    *
@@ -160,14 +228,19 @@ export default class SideTocPane extends React.Component<Props, State> {
     return (
       <div className={className} style={style}>
         <div className="sidetoc-pane-wrapper" style={wrapperStyle}>
-          {this.state.headers.map((v: HeaderItem) => {
+          {this.state.headers.map((v: HeaderItem, index: number) => {
             current += "_" + v.str.replace(/ /g, "");
             const { style, isCurrent } = this.toStyle(v, current);
             const ref = isCurrent ? this.paneState.curSectionRef : null;
             return (
-              <li style={style} onClick={this.handleClick.bind(this, v)} ref={ref}>
-                {v.str}
-              </li>
+              <HeaderListItem
+                key={`${v.index}-${v.str}`} // stable key for React optimization
+                header={v}
+                style={style}
+                onClick={this.handleClick}
+                ref={ref}
+                isCurrent={isCurrent}
+              />
             );
           })}
         </div>
@@ -280,9 +353,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     }, 10);
   };
   /*
-   *
+   * Handle CodeMirror updates with debouncing
    */
-  handleCmUpdate = () => {
+  handleCmUpdate = this.debounce(() => {
     if (this.props.editingNote._id != this.paneState.noteId) {
       this.paneState.noteId = this.props.editingNote._id;
       this.paneState.previewCurrent = "";
@@ -297,9 +370,11 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
 
     const editor = inkdrop.getActiveEditor();
+    if (!editor) return;
+    
     const { cm } = editor;
     const text = cm.lineInfo(cm.getCursor().line).text as string;
-    // forcely udpate when starts width "#"
+    // forcely update when starts with "#"
     if (!text.startsWith("#")) {
       // edited normal line.
       if (this.state.len == editor.cm.lineCount()) {
@@ -307,9 +382,8 @@ export default class SideTocPane extends React.Component<Props, State> {
       }
     }
 
-    // delay to catch the ime covnersion.
-    setTimeout(() => this.updateState(), 100);
-  };
+    this.updateState();
+  }, 200); // 200ms debounce
   /*
    *
    */
@@ -448,17 +522,17 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     this.paneState.previewHeaders = [];
     const preview = editorEle.querySelector(".mde-preview");
-    preview!.querySelectorAll<HTMLElement>("*").forEach((v: HTMLElement) => {
-      if (v.tagName.length == 2 && v.tagName.startsWith("H")) {
-        this.paneState.previewHeaders.push(v);
-      }
-    });
+    if (!preview) return;
+    
+    // Use efficient CSS selector instead of scanning all elements
+    const headerElements = preview.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6");
+    this.paneState.previewHeaders = Array.from(headerElements);
   };
 
   /*
-   * Handle preview scroll.
+   * Handle preview scroll with throttling.
    */
-  handlePreviewScroll = (_: Event) => {
+  handlePreviewScroll = this.throttle((_: Event) => {
     // skip editor mode
     if (!this.paneState.isPreview) {
       return;
@@ -470,7 +544,10 @@ export default class SideTocPane extends React.Component<Props, State> {
       this.handlePreviewUpdate($(".editor"));
     }
 
-    const diff = document.querySelector(".mde-preview")!.getBoundingClientRect().y;
+    const previewElement = document.querySelector(".mde-preview");
+    if (!previewElement) return;
+    
+    const diff = previewElement.getBoundingClientRect().y;
     // analyze current header
     for (let i = this.paneState.previewHeaders.length - 1; i >= 0; i--) {
       const header = this.paneState.previewHeaders[i];
@@ -499,7 +576,7 @@ export default class SideTocPane extends React.Component<Props, State> {
         break;
       }
     }
-  };
+  }, 16); // 60fps throttling
   /*
    *
    */
@@ -648,11 +725,13 @@ export default class SideTocPane extends React.Component<Props, State> {
     return null;
   }
   /*
-   *
+   * Optimized commit with selective content invalidation
    */
-  commit(state: {}): void {
-    // this.log(() => "★★★ commit");
-    this.paneState.content = null;
+  commit(state: any): void {
+    // Only invalidate content if headers, visibility, or currentHeader changed
+    if (state.headers !== undefined || state.visibility !== undefined || state.currentHeader !== undefined) {
+      this.paneState.content = null;
+    }
     this.setState(state);
   }
   /*
