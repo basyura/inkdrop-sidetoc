@@ -277,6 +277,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     if (preview == null) {
       return;
     }
+    // Store reference for proper cleanup
+    this.paneState.previewElement = preview;
     preview.addEventListener("scroll", this.handlePreviewScroll);
 
     // check initial view mode
@@ -310,9 +312,11 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.paneState.observer!.disconnect();
     this.paneState.bodyObserver!.disconnect();
 
-    // TODO
-    //const preview = editorEle.querySelector(".mde-preview");
-    //preview.removeEventListener("scroll", this.handlePreviewScroll);
+    // Properly remove preview scroll event listener to prevent memory leaks
+    if (this.paneState.previewElement) {
+      this.paneState.previewElement.removeEventListener("scroll", this.handlePreviewScroll);
+      this.paneState.previewElement = null;
+    }
   }
   /*
    *
@@ -671,19 +675,29 @@ export default class SideTocPane extends React.Component<Props, State> {
     return false;
   }
   /*
-   *
+   * Binary search optimized header lookup - O(log n) instead of O(n)
    */
   getCurrentHeader(line: number): HeaderItem | null {
-    let len = this.state.headers.length;
-    for (let i = 0; i < len; i++) {
-      let header = this.state.headers[i];
-      if (header == null) {
-        continue;
-      }
+    const headers = this.state.headers;
+    if (headers.length === 0) return null;
+    
+    let left = 0;
+    let right = headers.length - 1;
+    
+    // Binary search for the header containing the line
+    while (left <= right) {
+      const mid = Math.floor((left + right) / 2);
+      const header = headers[mid];
+      
       if (line >= header.rowStart && line <= header.rowEnd) {
         return header;
+      } else if (line < header.rowStart) {
+        right = mid - 1;
+      } else {
+        left = mid + 1;
       }
     }
+    
     return null;
   }
   /*

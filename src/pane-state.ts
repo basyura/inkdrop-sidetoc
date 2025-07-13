@@ -24,6 +24,8 @@ export class PaneState {
   lastRenderHeaders: any = null;
   lastRenderVisibility: boolean | null = null;
   lastRenderCurrentHeader: any = null;
+  // event listener references for proper cleanup
+  previewElement: Element | null = null;
 
   constructor() {
     this.lastLine = -1;
@@ -44,5 +46,7 @@ export class PaneState {
     this.lastRenderHeaders = null;
     this.lastRenderVisibility = null;
     this.lastRenderCurrentHeader = null;
+    // event listener references
+    this.previewElement = null;
   }
 }
