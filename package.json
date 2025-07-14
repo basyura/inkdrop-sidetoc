@@ -26,6 +26,6 @@
     "@types/react-dom": "^16.9.16",
     "event-kit": "^2.5.3",
     "react": "^16.14.0",
-    "typescript": "^3.9.10"
+    "typescript": "^5.8.3"
   }
 }

@@ -670,7 +670,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     // Keep cache size reasonable (LRU-like behavior)
     if (this.paneState.styleCache.size > 100) {
       const firstKey = this.paneState.styleCache.keys().next().value;
-      this.paneState.styleCache.delete(firstKey);
+      if (firstKey !== undefined) {
+        this.paneState.styleCache.delete(firstKey);
+      }
     }
     
     return result;

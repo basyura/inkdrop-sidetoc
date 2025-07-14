@@ -142,7 +142,9 @@ export function parse(props: Props): ParseResult {
   // Keep cache size reasonable (last 10 documents)
   if (headerCache.size > 10) {
     const firstKey = headerCache.keys().next().value;
-    headerCache.delete(firstKey);
+    if (firstKey !== undefined) {
+      headerCache.delete(firstKey);
+    }
   }
 
   return result;
