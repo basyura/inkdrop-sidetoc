@@ -15,8 +15,7 @@
   },
   "dependencies": {
     "flux": "^4.0.3",
-    "inkdrop-model": "^2.7.1",
-    "node-fetch": ">=3.2.10"
+    "inkdrop-model": "^2.7.1"
   },
   "devDependencies": {
     "@types/event-kit": "^2.4.1",
@@ -27,6 +26,6 @@
     "@types/react-dom": "^16.9.16",
     "event-kit": "^2.5.3",
     "react": "^16.14.0",
-    "typescript": "^3.9.10"
+    "typescript": "^5.8.3"
   }
 }
