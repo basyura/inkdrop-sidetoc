@@ -1,12 +1,15 @@
 "use babel";
 
 import * as React from "react";
+import type { Disposable } from "./types";
 
 export class PaneState {
   // rendered cache
   content: any;
   lastLine: number;
   noteId: string;
+  currentCodeMirror: any | null;
+  rebindTimer: NodeJS.Timeout | null;
   isPreview: boolean;
   // preview headers. this value is cleared with null when mode change to preview.
   previewHeaders: HTMLElement[];
@@ -15,6 +18,8 @@ export class PaneState {
   curSectionRef: React.RefObject<HTMLLIElement>;
   // for handle event
   dispatchId: string;
+  editorLoadSubscription: Disposable | null;
+  editorUnloadSubscription: Disposable | null;
   cursorTime: Date | null;
   observer: MutationObserver | null;
   bodyObserver: MutationObserver | null;
@@ -35,6 +40,8 @@ export class PaneState {
   constructor() {
     this.lastLine = -1;
     this.noteId = "";
+    this.currentCodeMirror = null;
+    this.rebindTimer = null;
     this.isPreview = false;
     // preview headers. this value is cleared with null when mode change to preview.
     this.previewHeaders = [];
@@ -43,6 +50,8 @@ export class PaneState {
     this.curSectionRef = React.createRef();
     // for handle event
     this.dispatchId = "";
+    this.editorLoadSubscription = null;
+    this.editorUnloadSubscription = null;
     this.cursorTime = null;
     this.observer = null;
     this.bodyObserver = null;

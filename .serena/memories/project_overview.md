@@ -1,0 +1,1 @@
+Inkdrop plugin repository `sidetoc`. Purpose: render a side table of contents for Inkdrop editor/preview. Tech stack: TypeScript, React, CSS, Flux. Source in `src/`, compiled output in `lib/`, styles in `styles/`, keymaps in `keymaps/`, menus in `menus/`. Validation baseline is `npm run build`. Supports Inkdrop `^5.11.2 || ^6.0.0` per package.json.

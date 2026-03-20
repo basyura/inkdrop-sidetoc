@@ -1,0 +1,1 @@
+When a change is complete, run `npm run build` at minimum. For UI changes, manually validate in Inkdrop: TOC rendering, current-heading highlight, and keybindings for affected flows. Keep `lib/` in sync with `src/` when source changes.

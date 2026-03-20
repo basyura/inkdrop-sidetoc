@@ -1,0 +1,1 @@
+Useful commands on Darwin: `ls`, `pwd`, `rg`, `sed -n`, `git status --short`, `git diff`. Project commands: `npm install`, `npm run build`, `npm run build-watch`. There is no dedicated test runner; build is the minimum validation step.

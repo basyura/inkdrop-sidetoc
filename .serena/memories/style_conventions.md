@@ -1,0 +1,1 @@
+Use TypeScript with 2-space indentation. Keep modules focused. Filenames use kebab-case, variables/functions camelCase, components/types PascalCase. Follow surrounding style because prettier/eslint are not fully aligned. Avoid unnecessary broad diffs.

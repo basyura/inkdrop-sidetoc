@@ -2,6 +2,10 @@
 import CodeMirror from "codemirror";
 import type { Note } from "inkdrop-model";
 
+export interface Disposable {
+  dispose(): void;
+}
+
 export interface Inkdrop {
   window: any;
   commands: any;
@@ -10,7 +14,8 @@ export interface Inkdrop {
   layouts: any;
   store: any;
   getActiveEditor(): Editor;
-  onEditorLoad(callback: (e: Editor) => void): void;
+  onEditorLoad(callback: (e: Editor) => void): Disposable;
+  onEditorUnload(callback: () => void): Disposable;
 }
 
 export interface Editor {

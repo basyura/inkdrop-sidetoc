@@ -15,8 +15,6 @@ import {
   State,
   WidthChangeMode,
 } from "./types";
-import { settings } from "cluster";
-
 const $ = (query: string) => document.querySelector(query);
 
 declare var inkdrop: Inkdrop;
@@ -121,19 +119,28 @@ export default class SideTocPane extends React.Component<Props, State> {
       this.dispatchAction(action)
     );
 
+    this.paneState.editorLoadSubscription = inkdrop.onEditorLoad((editor) => {
+      this.attachEvents(editor);
+    });
+    this.paneState.editorUnloadSubscription = inkdrop.onEditorUnload(() => {
+      this.invalidateElementCache();
+      this.detachEvents();
+    });
+
     const editor = inkdrop.getActiveEditor();
     if (editor != null) {
       this.attachEvents(editor);
-    } else {
-      inkdrop.onEditorLoad((e) => {
-        this.attachEvents(e);
-      });
     }
   }
   /*
    *
    */
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.editingNote?._id !== this.props.editingNote?._id) {
+      this.handleNoteSwitch();
+      return;
+    }
+
     const cur = this.paneState.curSectionRef.current;
     if (cur == null) {
       return;
@@ -151,13 +158,15 @@ export default class SideTocPane extends React.Component<Props, State> {
     // unhandle event
     dispatcher.unregister(this.paneState.dispatchId);
 
-    const editor = inkdrop.getActiveEditor();
-    // for delete note
-    if (editor == null) {
-      return;
+    if (this.paneState.rebindTimer != null) {
+      clearTimeout(this.paneState.rebindTimer);
+      this.paneState.rebindTimer = null;
     }
-
-    this.detachEvents(editor);
+    this.paneState.editorLoadSubscription?.dispose();
+    this.paneState.editorUnloadSubscription?.dispose();
+    this.paneState.editorLoadSubscription = null;
+    this.paneState.editorUnloadSubscription = null;
+    this.detachEvents();
   }
   /*
    *
@@ -274,6 +283,13 @@ export default class SideTocPane extends React.Component<Props, State> {
    *
    */
   attachEvents(editor: Editor) {
+    const { cm } = editor;
+    if (this.paneState.currentCodeMirror === cm) {
+      return;
+    }
+
+    this.detachEvents();
+    this.paneState.currentCodeMirror = cm;
     this.statusBar = document.querySelector(
       "#app-container .main-layout .editor-layout .editor-status-bar-layout"
     );
@@ -281,13 +297,12 @@ export default class SideTocPane extends React.Component<Props, State> {
     // refresh
     this.updateState();
 
-    const { cm } = editor;
     cm.on("cursorActivity", this.handleCursorActivity);
     cm.on("changes", this.handleCmUpdate);
     cm.on("scroll", this.handleCmScroll);
 
     // for sidetoc overflow-y
-    inkdrop.window.on("resize", this.handleWindowResize);
+    //inkdrop.window.on("resize", this.handleWindowResize);
 
     // hook preview scroll
     const editorEle = this.getEditorElement();
@@ -324,21 +339,28 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  detachEvents(editor: Editor) {
-    const { cm } = editor;
-    cm.off("cursorActivity", this.handleCursorActivity);
-    cm.off("update", this.handleCmUpdate);
-    cm.off("scroll", this.handleCmScroll);
+  detachEvents(editor?: Editor) {
+    const targetCodeMirror = editor?.cm ?? this.paneState.currentCodeMirror;
+    if (targetCodeMirror != null) {
+      const cm = targetCodeMirror;
+      cm.off("cursorActivity", this.handleCursorActivity);
+      cm.off("changes", this.handleCmUpdate);
+      cm.off("scroll", this.handleCmScroll);
+    }
 
-    inkdrop.window.off("resize", this.handleWindowResize);
-    this.paneState.observer!.disconnect();
-    this.paneState.bodyObserver!.disconnect();
+    //inkdrop.window.off("resize", this.handleWindowResize);
+    this.paneState.observer?.disconnect();
+    this.paneState.bodyObserver?.disconnect();
+    this.paneState.observer = null;
+    this.paneState.bodyObserver = null;
 
     // Properly remove preview scroll event listener to prevent memory leaks
     if (this.paneState.previewElement) {
       this.paneState.previewElement.removeEventListener("scroll", this.handlePreviewScroll);
       this.paneState.previewElement = null;
     }
+
+    this.paneState.currentCodeMirror = null;
   }
   /*
    *
@@ -360,12 +382,51 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     return newState;
   };
+
+  rebindActiveEditor = () => {
+    if (this.paneState.rebindTimer != null) {
+      clearTimeout(this.paneState.rebindTimer);
+    }
+
+    this.paneState.rebindTimer = setTimeout(() => {
+      this.paneState.rebindTimer = null;
+      const editor = inkdrop.getActiveEditor();
+      if (editor == null) {
+        this.detachEvents();
+        return;
+      }
+
+      this.attachEvents(editor);
+      const newState = this.updateState({ currentHeader: null });
+      if (newState != null && newState.headers.length > 0) {
+        this.paneState.previewCurrent = "_" + newState.headers[0].str.replace(/ /g, "");
+      }
+      this.handleCursorActivity(editor.cm, true);
+    }, 0);
+  };
+
+  handleNoteSwitch = () => {
+    this.invalidateElementCache();
+    this.detachEvents();
+    this.paneState.previewHeaders = [];
+    this.paneState.previewCurrent = "";
+    this.paneState.firstPreview = true;
+    this.paneState.lastLine = -1;
+    this.paneState.noteId = this.props.editingNote?._id || "";
+
+    const newState = this.updateState({ currentHeader: null });
+    if (newState != null && newState.headers.length > 0) {
+      this.paneState.previewCurrent = "_" + newState.headers[0].str.replace(/ /g, "");
+    }
+
+    this.rebindActiveEditor();
+  };
   /*
    *
    */
   updateSection(line: number): void {
     const header = this.getCurrentHeader(line);
-    if (header != null && this.state.currentHeader != header) {
+    if (!this.isSameHeader(this.state.currentHeader, header)) {
       this.commit({ currentHeader: header });
     }
   }
@@ -383,15 +444,7 @@ export default class SideTocPane extends React.Component<Props, State> {
    */
   handleCmUpdate = this.debounce(() => {
     if (this.props.editingNote._id != this.paneState.noteId) {
-      this.paneState.noteId = this.props.editingNote._id;
-      this.paneState.previewCurrent = "";
-      const newState = this.updateState();
-      if (newState != null && newState.headers.length > 0) {
-        this.paneState.previewCurrent = "_" + newState.headers[0].str.replace(/ /g, "");
-        setTimeout(() => {
-          this.handleCursorActivity(inkdrop.getActiveEditor().cm, true);
-        }, 100);
-      }
+      this.handleNoteSwitch();
       return;
     }
 
@@ -654,7 +707,10 @@ export default class SideTocPane extends React.Component<Props, State> {
    */
   toStyleCached = (header: HeaderItem, current: string) => {
     // Generate cache key based on style-affecting properties
-    const cacheKey = `${header.count}-${this.state.min}-${current}-${this.paneState.isPreview ? this.paneState.previewCurrent : this.state.currentHeader?.index || 'none'}`;
+    const currentHeaderKey = this.paneState.isPreview
+      ? this.paneState.previewCurrent
+      : (this.state.currentHeader?.index ?? "none");
+    const cacheKey = `${header.count}-${this.state.min}-${current}-${currentHeaderKey}`;
     
     // Check cache first
     if (this.paneState.styleCache.has(cacheKey)) {
@@ -709,8 +765,10 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  isSameHeader(h1: HeaderItem | null, h2: HeaderItem): boolean {
+  isSameHeader(h1: HeaderItem | null, h2: HeaderItem | null): boolean {
     if (h1 == null) {
+      return h2 == null;
+    } else if (h2 == null) {
       return false;
     } else if (h1 == h2) {
       return true;
