@@ -19,7 +19,7 @@ export interface Inkdrop {
 }
 
 export interface Editor {
-  cm: CodeMirror.Editor;
+  cm?: CodeMirror.Editor;
   forceUpdate(): any;
 }
 

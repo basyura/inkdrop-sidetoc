@@ -285,7 +285,10 @@ export default class SideTocPane extends React.Component<Props, State> {
    *
    */
   attachEvents(editor: Editor) {
-    const { cm } = editor;
+    const cm = editor?.cm;
+    if (cm == null) {
+      return;
+    }
     if (this.paneState.currentCodeMirror === cm) {
       return;
     }
@@ -374,7 +377,8 @@ export default class SideTocPane extends React.Component<Props, State> {
    */
   updateState = (option = {}) => {
     const editor = inkdrop.getActiveEditor();
-    if (editor == null) {
+    const cm = editor?.cm;
+    if (cm == null) {
       return;
     }
     const ret = ripper.parse(this.props);
@@ -382,7 +386,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     const newState = Object.assign(option, {
       headers: ret.headers,
       min: ret.min,
-      len: editor.cm.lineCount(),
+      len: cm.lineCount(),
     });
 
     this.commit(newState);
@@ -408,7 +412,9 @@ export default class SideTocPane extends React.Component<Props, State> {
       if (newState != null && newState.headers.length > 0) {
         this.paneState.previewCurrent = "_" + newState.headers[0].str.replace(/ /g, "");
       }
-      this.handleCursorActivity(editor.cm, true);
+      if (editor.cm != null) {
+        this.handleCursorActivity(editor.cm, true);
+      }
     }, 0);
   };
 
@@ -457,13 +463,14 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     const editor = inkdrop.getActiveEditor();
     if (!editor) return;
+    const cm = editor.cm;
+    if (!cm) return;
 
-    const { cm } = editor;
     const text = cm.lineInfo(cm.getCursor().line).text as string;
     // forcely update when starts with "#"
     if (!text.startsWith("#")) {
       // edited normal line.
-      if (this.state.len == editor.cm.lineCount()) {
+      if (this.state.len == cm.lineCount()) {
         return;
       }
     }
@@ -540,7 +547,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
 
     // for editor mode
-    const { cm } = inkdrop.getActiveEditor();
+    const cm = inkdrop.getActiveEditor()?.cm;
+    if (!cm) return;
     const { line } = cm.getCursor();
     const header = this.getCurrentHeader(line);
     const prev = this.getPrevHeader(header, line);
@@ -581,7 +589,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
 
     // for editor mode
-    const { cm } = inkdrop.getActiveEditor();
+    const cm = inkdrop.getActiveEditor()?.cm;
+    if (!cm) return;
     const { line } = cm.getCursor();
     const header = this.getCurrentHeader(line);
     const next = this.getNextHeader(header);
@@ -650,7 +659,8 @@ export default class SideTocPane extends React.Component<Props, State> {
         if (this.paneState.previewCurrent != current) {
           this.paneState.previewCurrent = current;
           // move cursor to active header
-          const { cm } = inkdrop.getActiveEditor();
+          const cm = inkdrop.getActiveEditor()?.cm;
+          if (!cm) break;
           const item = this.state.headers[k - 1];
           if (item != null) {
             cm.setCursor(item.rowStart, 0);
@@ -692,7 +702,8 @@ export default class SideTocPane extends React.Component<Props, State> {
       return;
     }
 
-    const cm = inkdrop.getActiveEditor().cm;
+    const cm = inkdrop.getActiveEditor()?.cm;
+    if (!cm) return;
     cm.scrollTo(0, 99999);
     cm.setCursor(header.rowStart, 0);
     cm.focus();
