@@ -21,6 +21,7 @@ export class PaneState {
   editorLoadSubscription: Disposable | null;
   editorUnloadSubscription: Disposable | null;
   cursorTime: Date | null;
+  resizeObserver: ResizeObserver | null;
   observer: MutationObserver | null;
   bodyObserver: MutationObserver | null;
   firstPreview: boolean;
@@ -53,6 +54,7 @@ export class PaneState {
     this.editorLoadSubscription = null;
     this.editorUnloadSubscription = null;
     this.cursorTime = null;
+    this.resizeObserver = null;
     this.observer = null;
     this.bodyObserver = null;
     this.firstPreview = true;

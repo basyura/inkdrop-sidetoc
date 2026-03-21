@@ -20,7 +20,7 @@
 ### 要確認
 
 - [x] `inkdrop.window.on/off` を使っていた箇所は現行 `src/` では実質コメントアウト済みで、残課題は `resize` 再実装要否の判断に絞られる
-- [ ] コメントアウトされている `resize` 追従が不要なのか、代替実装が必要なのか
+- [x] `resize` 追従は `inkdrop.window` ではなく `ResizeObserver` で pane 要素を監視する方針にする
 - [x] Preview mode のスクロール対象は `.mde-preview-container` であることを確認した
 - [ ] Preview mode の表示判定、ノート切り替え直後の挙動が v6 で安定するか
 - [ ] `lib/` を生成して配布物として同期すべきか
@@ -58,7 +58,7 @@
 ## 参照前提
 
 - Inkdrop の v5→v6 移行ガイドでは、`inkdrop.window.on('focus', ...)` のような使い方は `inkdrop.window.onFocus(...)` のような専用 API に移行し、購読解除は `dispose()` を使う
-- 既存コードでは `resize` ハンドリングがコメントアウトされているため、v6 で利用可能な window API に合わせて実装方針を決める必要がある
+- 公式に `inkdrop.window.onResize` は見当たらないため、`resize` は window API ではなく pane 要素への `ResizeObserver` で扱う方針が妥当
 
 ## 対応方針
 
@@ -71,9 +71,17 @@
 
 - [x] preview mode のスクロール対象を `.mde-preview-container` に揃える修正を実施した
 - [x] イベント購読は `Disposable` を保持して `componentWillUnmount` で破棄する実装になっている
-- [ ] `resize` 追従が必要なら v6 API に沿って再実装し、不要ならコードと計画の両方に理由を残す
+- [x] `resize` 追従は `ResizeObserver` で pane 要素を監視する形で再実装した
 - [x] preview mode の `scroll` / `scrollTop` / ジャンプ処理の参照先を `.mde-preview-container` に統一した
 - [x] preview mode でカレントのヘッダー色変更が追従しない問題の主因を特定した
+
+### resize 対応案
+
+- [x] `src/pane-state.ts` に `ResizeObserver` の参照を保持する
+- [x] `attachEvents()` で `getPaneElement()` の返す要素に `ResizeObserver` を登録する
+- [x] `detachEvents()` / `componentWillUnmount()` で `ResizeObserver` を解除する
+- [x] `handleWindowResize()` は pane 高さ再計算用の処理として再利用する
+- [x] `inkdrop.window` ベースの `resize` 復帰は行わない
 
 ### preview mode 実装案
 
@@ -96,6 +104,7 @@
 - [ ] preview mode 切り替え時に TOC が正しく再描画される
 - [x] Preview スクロールで TOC の現在位置の色変更が追従する
 - [x] Preview スクロールイベント自体が `.mde-preview-container` で発火することを確認した
+- [x] pane サイズ変更時に `ResizeObserver` 経由で再計算されることを確認した
 - [ ] Preview 内の見出しクリックや再レンダリング後も TOC が破綻しない
 - [ ] ノート切り替え時に TOC が壊れず再描画される
 - [ ] プラグインの有効化・無効化やエディタ再読み込みでイベントリークが起きない
@@ -108,7 +117,8 @@
 ## 完了条件
 
 - [x] v6 非互換 API の洗い出しが完了している
-- [ ] 必要な `src/` 修正が完了している
+- [x] preview mode のスクロール追従に関する `src/` 修正が完了している
+- [x] `ResizeObserver` による `resize` 対応が完了している
 - [x] `npm run build` が成功している
 - [x] `lib/` が同期されている
 - [ ] Inkdrop v6 上で editor / preview mode の主要フロー手動確認が完了している

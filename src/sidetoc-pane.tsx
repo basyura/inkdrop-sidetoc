@@ -303,8 +303,13 @@ export default class SideTocPane extends React.Component<Props, State> {
     cm.on("changes", this.handleCmUpdate);
     cm.on("scroll", this.handleCmScroll);
 
-    // for sidetoc overflow-y
-    //inkdrop.window.on("resize", this.handleWindowResize);
+    const pane = this.getPaneElement();
+    if (pane != null) {
+      this.paneState.resizeObserver = new ResizeObserver(() => {
+        this.handleWindowResize();
+      });
+      this.paneState.resizeObserver.observe(pane);
+    }
 
     // hook preview scroll
     const editorEle = this.getEditorElement();
@@ -349,10 +354,10 @@ export default class SideTocPane extends React.Component<Props, State> {
       cm.off("changes", this.handleCmUpdate);
       cm.off("scroll", this.handleCmScroll);
     }
-
-    //inkdrop.window.off("resize", this.handleWindowResize);
+    this.paneState.resizeObserver?.disconnect();
     this.paneState.observer?.disconnect();
     this.paneState.bodyObserver?.disconnect();
+    this.paneState.resizeObserver = null;
     this.paneState.observer = null;
     this.paneState.bodyObserver = null;
 
