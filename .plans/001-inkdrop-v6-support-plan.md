@@ -22,6 +22,7 @@
 - [x] `inkdrop.window.on/off` を使っていた箇所は現行 `src/` では実質コメントアウト済みで、残課題は `resize` 再実装要否の判断に絞られる
 - [x] `resize` 追従は `inkdrop.window` ではなく `ResizeObserver` で pane 要素を監視する方針にする
 - [x] Preview mode のスクロール対象は `.mde-preview-container` であることを確認した
+- [ ] `sidetoc-jump-next` 実行時に `cm.getViewport is not a function` が出る原因を確認し、editor mode の見出しジャンプを v6 互換にする
 - [ ] Preview mode の表示判定、ノート切り替え直後の挙動が v6 で安定するか
 - [ ] `lib/` を生成して配布物として同期すべきか
 
@@ -55,6 +56,12 @@
 - [ ] 配布前提のビルド成果物更新
 - [ ] 必要に応じた README / CHANGELOG / リリース手順の見直し
 
+### `sidetoc-jump-next` 調査メモ
+
+- [x] 例外発生箇所は `handleJumpToNext()` の editor mode 側で、`cm.getViewport()` 呼び出しだった
+- [x] 既存実装は `getViewport().to - getViewport().from` を使って一度だけ先の行へカーソルを置き、その後に目的の見出しへ戻すことでスクロール位置を調整していた
+- [x] `editor.cm` が `getViewport()` を持たないケースを考慮し、`setCursor()` / `scrollIntoView()` ベースへ置き換えた
+
 ## 参照前提
 
 - Inkdrop の v5→v6 移行ガイドでは、`inkdrop.window.on('focus', ...)` のような使い方は `inkdrop.window.onFocus(...)` のような専用 API に移行し、購読解除は `dispose()` を使う
@@ -74,6 +81,7 @@
 - [x] `resize` 追従は `ResizeObserver` で pane 要素を監視する形で再実装した
 - [x] preview mode の `scroll` / `scrollTop` / ジャンプ処理の参照先を `.mde-preview-container` に統一した
 - [x] preview mode でカレントのヘッダー色変更が追従しない問題の主因を特定した
+- [x] editor mode の見出しジャンプで `getViewport()` に依存しない互換実装へ置き換えた
 
 ### resize 対応案
 
@@ -101,6 +109,7 @@
 - Inkdrop v6 で以下を手動確認する
 - [ ] エディタ表示時に TOC が表示される
 - [ ] 見出し移動で現在位置のハイライトが追従する
+- [ ] `sidetoc-jump-next` / `sidetoc-jump-prev` が editor mode で例外なく動作する
 - [ ] preview mode 切り替え時に TOC が正しく再描画される
 - [x] Preview スクロールで TOC の現在位置の色変更が追従する
 - [x] Preview スクロールイベント自体が `.mde-preview-container` で発火することを確認した

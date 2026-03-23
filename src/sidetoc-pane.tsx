@@ -58,6 +58,20 @@ export default class SideTocPane extends React.Component<Props, State> {
   statusBar: Element | null = null;
 
   // Utility functions for performance optimization
+  private getScrollableCodeMirror(cm: CodeMirror.Editor): CodeMirror.Editor & {
+    charCoords(pos: { line: number; ch: number }, mode?: any): { top: number; bottom: number };
+    defaultTextHeight(): number;
+    getScrollInfo(): { clientHeight: number };
+    scrollTo(x?: number | null, y?: number | null): void;
+  } {
+    return cm as CodeMirror.Editor & {
+      charCoords(pos: { line: number; ch: number }, mode?: any): { top: number; bottom: number };
+      defaultTextHeight(): number;
+      getScrollInfo(): { clientHeight: number };
+      scrollTo(x?: number | null, y?: number | null): void;
+    };
+  }
+
   private debounce = <T extends (...args: any[]) => void>(func: T, wait: number): T => {
     let timeout: NodeJS.Timeout | undefined;
     return ((...args: Parameters<T>) => {
@@ -595,9 +609,16 @@ export default class SideTocPane extends React.Component<Props, State> {
     const header = this.getCurrentHeader(line);
     const next = this.getNextHeader(header);
     if (next != null) {
-      const vp = cm.getViewport();
-      cm.setCursor(next.rowStart + Math.round((vp.to - vp.from) / 2), 0);
       cm.setCursor(next.rowStart, 0);
+      const cmWithScroll = this.getScrollableCodeMirror(cm);
+      const coords = cmWithScroll.charCoords({ line: next.rowStart, ch: 0 }, "local");
+      const clientHeight = cmWithScroll.getScrollInfo().clientHeight;
+      const lineHeight = cmWithScroll.defaultTextHeight();
+      const centeredTop = Math.max(
+        coords.top - Math.floor(clientHeight / 2) + Math.floor(lineHeight / 2),
+        0
+      );
+      cmWithScroll.scrollTo(null, centeredTop);
       this.handleCursorActivity(cm);
     }
   };
