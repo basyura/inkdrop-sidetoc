@@ -1,6 +1,6 @@
 "use babel";
 
-import { HeaderItem, ParseResult, Props } from "./types";
+import { HeaderItem, ParseResult } from "./types";
 
 // Cache for parsed headers
 const headerCache = new Map<number, ParseResult>();
@@ -55,8 +55,7 @@ function hashCode(str: string): number {
 /*
  * extract # headers with caching
  */
-export function parse(props: Props): ParseResult {
-  const body = props.editingNote.body;
+export function parse(body: string): ParseResult {
   const bodyHash = hashCode(body);
 
   // Return cached result if content hasn't changed

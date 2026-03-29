@@ -56,6 +56,8 @@ export default class SideTocPane extends React.Component<Props, State> {
   paneState = new PaneState();
   // element cache
   statusBar: Element | null = null;
+  private dispatchTarget: any | null = null;
+  private originalDispatch: ((...args: any[]) => any) | null = null;
 
   // Utility functions for performance optimization
   private getScrollableCodeMirror(cm: CodeMirror.Editor): CodeMirror.Editor & {
@@ -115,6 +117,67 @@ export default class SideTocPane extends React.Component<Props, State> {
   private invalidateElementCache(): void {
     this.paneState.cachedPaneElement = null;
     this.paneState.cachedEditorElement = null;
+  }
+
+  private getEditorRefs(editor: Editor) {
+    const view = editor as any;
+    const cm = view?.cm;
+    const doc = view?.state?.doc ?? cm?.state?.doc ?? null;
+
+    return { view, cm, doc };
+  }
+
+  private getEditorBody(editor: Editor): string {
+    const { cm, doc } = this.getEditorRefs(editor);
+    return doc?.toString?.() ?? cm?.getValue?.() ?? this.props.editingNote?.body ?? "";
+  }
+
+  private getEditorDoc(editor: Editor): unknown {
+    return this.getEditorRefs(editor).doc;
+  }
+
+  private getEditorLineCount(editor: Editor): number {
+    const { view, cm } = this.getEditorRefs(editor);
+    return cm?.lineCount?.() ?? view?.state?.doc?.lines ?? this.getEditorBody(editor).split("\n").length;
+  }
+
+  private getCurrentLineText(editor: Editor): string {
+    const { view, cm } = this.getEditorRefs(editor);
+    if (cm?.lineInfo && cm?.getCursor) {
+      return cm.lineInfo(cm.getCursor().line)?.text ?? "";
+    }
+
+    const head = view?.state?.selection?.main?.head;
+    return typeof head === "number" ? view?.state?.doc?.lineAt(head)?.text ?? "" : "";
+  }
+
+  private installDocumentChangeListener(editor: Editor): void {
+    const { view } = this.getEditorRefs(editor);
+    const target = view;
+    const originalDispatch = target.dispatch.bind(target);
+    this.dispatchTarget = target;
+    this.originalDispatch = originalDispatch;
+
+    target.dispatch = (...args: any[]) => {
+      const beforeDoc = this.getEditorDoc(editor);
+      const result = originalDispatch(...args);
+      const afterDoc = this.getEditorDoc(editor);
+
+      if (beforeDoc !== afterDoc) {
+        this.handleCmUpdate();
+      }
+
+      return result;
+    };
+  }
+
+  private uninstallDocumentChangeListener(): void {
+    if (this.dispatchTarget && this.originalDispatch) {
+      this.dispatchTarget.dispatch = this.originalDispatch;
+    }
+
+    this.dispatchTarget = null;
+    this.originalDispatch = null;
   }
   /*
    *
@@ -317,8 +380,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.updateState();
 
     cm.on("cursorActivity", this.handleCursorActivity);
-    cm.on("changes", this.handleCmUpdate);
     cm.on("scroll", this.handleCmScroll);
+    this.installDocumentChangeListener(editor);
 
     const pane = this.getPaneElement();
     if (pane != null) {
@@ -364,11 +427,12 @@ export default class SideTocPane extends React.Component<Props, State> {
    *
    */
   detachEvents(editor?: Editor) {
+    this.uninstallDocumentChangeListener();
+
     const targetCodeMirror = editor?.cm ?? this.paneState.currentCodeMirror;
     if (targetCodeMirror != null) {
       const cm = targetCodeMirror;
       cm.off("cursorActivity", this.handleCursorActivity);
-      cm.off("changes", this.handleCmUpdate);
       cm.off("scroll", this.handleCmScroll);
     }
     this.paneState.resizeObserver?.disconnect();
@@ -391,16 +455,16 @@ export default class SideTocPane extends React.Component<Props, State> {
    */
   updateState = (option = {}) => {
     const editor = inkdrop.getActiveEditor();
-    const cm = editor?.cm;
-    if (cm == null) {
+    if (editor == null) {
       return;
     }
-    const ret = ripper.parse(this.props);
+    const body = this.getEditorBody(editor);
+    const ret = ripper.parse(body);
     // renew state
     const newState = Object.assign(option, {
       headers: ret.headers,
       min: ret.min,
-      len: cm.lineCount(),
+      len: this.getEditorLineCount(editor),
     });
 
     this.commit(newState);
@@ -477,14 +541,11 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     const editor = inkdrop.getActiveEditor();
     if (!editor) return;
-    const cm = editor.cm;
-    if (!cm) return;
-
-    const text = cm.lineInfo(cm.getCursor().line).text as string;
+    const text = this.getCurrentLineText(editor);
     // forcely update when starts with "#"
     if (!text.startsWith("#")) {
       // edited normal line.
-      if (this.state.len == cm.lineCount()) {
+      if (this.state.len == this.getEditorLineCount(editor)) {
         return;
       }
     }

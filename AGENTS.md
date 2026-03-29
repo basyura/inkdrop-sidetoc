@@ -5,7 +5,6 @@
 - 修正を始める前に計画をマークダウンファイルで .plans フォルダ配下に日本語で生成してください。
 - 計画のファイル名は連番とし、1つ目を 001 始まりとして修正にあった適切なファイル名としてください。
 - 具体的なファイル編集をする前に、修正案を提示すること。
-- 指示があるまで新しい計画ファイルを作成せず、現在の計画に反映すること。
 - API に関しては https://github.com/inkdropapp/api-docs/ サイトを確認すること。特に、inkdrop v5 から v6 への plugin アップデートに関しては https://github.com/inkdropapp/api-docs/blob/main/src/app/appendix/plugin-migration-from-v5-to-v6/page.mdx を参照すること。
 
 ## Project Structure & Module Organization
