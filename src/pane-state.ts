@@ -10,6 +10,7 @@ export class PaneState {
   noteId: string;
   currentCodeMirror: any | null;
   rebindTimer: NodeJS.Timeout | null;
+  rebindAttempts: number;
   isPreview: boolean;
   // preview headers. this value is cleared with null when mode change to preview.
   previewHeaders: HTMLElement[];
@@ -43,6 +44,7 @@ export class PaneState {
     this.noteId = "";
     this.currentCodeMirror = null;
     this.rebindTimer = null;
+    this.rebindAttempts = 0;
     this.isPreview = false;
     // preview headers. this value is cleared with null when mode change to preview.
     this.previewHeaders = [];

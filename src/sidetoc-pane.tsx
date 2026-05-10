@@ -58,6 +58,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   statusBar: Element | null = null;
   private dispatchTarget: any | null = null;
   private originalDispatch: ((...args: any[]) => any) | null = null;
+  private maxRebindAttempts = 100;
 
   // Utility functions for performance optimization
   private getScrollableCodeMirror(cm: CodeMirror.Editor): CodeMirror.Editor & {
@@ -207,6 +208,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     const editor = inkdrop.getActiveEditor();
     if (editor != null) {
       this.attachEvents(editor);
+    } else {
+      this.rebindActiveEditor(100);
     }
   }
   /*
@@ -260,7 +263,8 @@ export default class SideTocPane extends React.Component<Props, State> {
         this.handleJumpToNext();
         break;
       case "Activate":
-        this.updateState({ visibility: true });
+        this.updateState({ visibility: Settings.isDefaultVisible });
+        this.rebindActiveEditor(100);
         break;
       case "Deactivate":
         this.updateState({ visibility: false });
@@ -361,16 +365,18 @@ export default class SideTocPane extends React.Component<Props, State> {
   /*
    *
    */
-  attachEvents(editor: Editor) {
+  attachEvents(editor: Editor): boolean {
     const cm = editor?.cm;
     if (cm == null) {
-      return;
+      this.rebindActiveEditor(100);
+      return false;
     }
     if (this.paneState.currentCodeMirror === cm) {
-      return;
+      return true;
     }
 
     this.detachEvents();
+    this.paneState.rebindAttempts = 0;
     this.paneState.currentCodeMirror = cm;
     this.statusBar = document.querySelector(
       "#app-container .main-layout .editor-layout .editor-status-bar-layout"
@@ -394,12 +400,12 @@ export default class SideTocPane extends React.Component<Props, State> {
     // hook preview scroll
     const editorEle = this.getEditorElement();
     if (editorEle == null) {
-      return;
+      return true;
     }
     // preview element
     const preview = editorEle.querySelector(".mde-preview-container");
     if (preview == null) {
-      return;
+      return true;
     }
     // Store reference for proper cleanup
     this.paneState.previewElement = preview;
@@ -422,6 +428,8 @@ export default class SideTocPane extends React.Component<Props, State> {
       this.updateState();
     });
     this.paneState.bodyObserver.observe(document.body, { attributes: true });
+
+    return true;
   }
   /*
    *
@@ -472,28 +480,34 @@ export default class SideTocPane extends React.Component<Props, State> {
     return newState;
   };
 
-  rebindActiveEditor = () => {
+  rebindActiveEditor = (delay = 0) => {
+    if (this.paneState.rebindAttempts >= this.maxRebindAttempts) {
+      return;
+    }
+
     if (this.paneState.rebindTimer != null) {
       clearTimeout(this.paneState.rebindTimer);
     }
 
     this.paneState.rebindTimer = setTimeout(() => {
       this.paneState.rebindTimer = null;
+      this.paneState.rebindAttempts++;
       const editor = inkdrop.getActiveEditor();
       if (editor == null) {
         this.detachEvents();
+        this.rebindActiveEditor(100);
         return;
       }
 
-      this.attachEvents(editor);
+      const attached = this.attachEvents(editor);
       const newState = this.updateState({ currentHeader: null });
       if (newState != null && newState.headers.length > 0) {
         this.paneState.previewCurrent = "_" + newState.headers[0].str.replace(/ /g, "");
       }
-      if (editor.cm != null) {
+      if (attached && editor.cm != null) {
         this.handleCursorActivity(editor.cm, true);
       }
-    }, 0);
+    }, delay);
   };
 
   handleNoteSwitch = () => {
@@ -503,6 +517,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.paneState.previewCurrent = "";
     this.paneState.firstPreview = true;
     this.paneState.lastLine = -1;
+    this.paneState.rebindAttempts = 0;
     this.paneState.noteId = this.props.editingNote?._id || "";
 
     const newState = this.updateState({ currentHeader: null });
