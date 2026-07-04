@@ -1,5 +1,4 @@
 "use babel";
-import CodeMirror from "codemirror";
 import type { Note } from "inkdrop-model";
 
 export interface Disposable {
@@ -19,7 +18,9 @@ export interface Inkdrop {
 }
 
 export interface Editor {
-  cm?: CodeMirror.Editor;
+  state?: any;
+  dispatch?: (...args: any[]) => any;
+  focus?: () => void;
   forceUpdate(): any;
 }
 

@@ -8,7 +8,7 @@ export class PaneState {
   content: any;
   lastLine: number;
   noteId: string;
-  currentCodeMirror: any | null;
+  currentEditor: any | null;
   rebindTimer: NodeJS.Timeout | null;
   rebindAttempts: number;
   isPreview: boolean;
@@ -21,7 +21,6 @@ export class PaneState {
   dispatchId: string;
   editorLoadSubscription: Disposable | null;
   editorUnloadSubscription: Disposable | null;
-  cursorTime: Date | null;
   resizeObserver: ResizeObserver | null;
   observer: MutationObserver | null;
   bodyObserver: MutationObserver | null;
@@ -42,7 +41,7 @@ export class PaneState {
   constructor() {
     this.lastLine = -1;
     this.noteId = "";
-    this.currentCodeMirror = null;
+    this.currentEditor = null;
     this.rebindTimer = null;
     this.rebindAttempts = 0;
     this.isPreview = false;
@@ -55,7 +54,6 @@ export class PaneState {
     this.dispatchId = "";
     this.editorLoadSubscription = null;
     this.editorUnloadSubscription = null;
-    this.cursorTime = null;
     this.resizeObserver = null;
     this.observer = null;
     this.bodyObserver = null;
