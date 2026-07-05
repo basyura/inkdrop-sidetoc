@@ -162,6 +162,31 @@ export default class SideTocPane extends React.Component<Props, State> {
     return typeof head === "number" ? view?.state?.doc?.lineAt(head)?.text ?? "" : "";
   }
 
+  private getEditorScrollElement(editor: Editor, editorEle: Element | null): Element | null {
+    const { view } = this.getEditorRefs(editor);
+    const scrollDOM = view?.scrollDOM;
+    if (scrollDOM?.addEventListener) {
+      return scrollDOM;
+    }
+
+    return editorEle?.querySelector(".cm-scroller") ?? null;
+  }
+
+  private getVisibleEditorLine(editor: Editor): number | null {
+    const { view, doc } = this.getEditorRefs(editor);
+    const scrollDOM = this.paneState.editorScrollElement as HTMLElement | null;
+    if (view?.lineBlockAtHeight && doc?.lineAt && scrollDOM != null) {
+      const margin = inkdrop.config.get("editor.cursorScrollMargin") ?? 0;
+      const block = view.lineBlockAtHeight(scrollDOM.scrollTop + margin);
+      const from = block?.from;
+      if (typeof from === "number") {
+        return doc.lineAt(from).number - 1;
+      }
+    }
+
+    return this.getCurrentEditorLine();
+  }
+
   private installDocumentChangeListener(editor: Editor): void {
     const { view } = this.getEditorRefs(editor);
     const target = view;
@@ -417,6 +442,12 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     // hook preview scroll
     const editorEle = this.getEditorElement();
+    const editorScrollElement = this.getEditorScrollElement(editor, editorEle);
+    if (editorScrollElement != null) {
+      this.paneState.editorScrollElement = editorScrollElement;
+      editorScrollElement.addEventListener("scroll", this.handleEditorScroll);
+    }
+
     if (editorEle == null) {
       return true;
     }
@@ -465,6 +496,10 @@ export default class SideTocPane extends React.Component<Props, State> {
     if (this.paneState.previewElement) {
       this.paneState.previewElement.removeEventListener("scroll", this.handlePreviewScroll);
       this.paneState.previewElement = null;
+    }
+    if (this.paneState.editorScrollElement) {
+      this.paneState.editorScrollElement.removeEventListener("scroll", this.handleEditorScroll);
+      this.paneState.editorScrollElement = null;
     }
 
     this.paneState.currentEditor = null;
@@ -581,6 +616,23 @@ export default class SideTocPane extends React.Component<Props, State> {
 
     this.updateState();
   }, 200); // 200ms debounce
+  /*
+   * Handle editor scrolling and refresh highlight section.
+   */
+  handleEditorScroll = this.throttle((_: Event) => {
+    if (this.paneState.isPreview) {
+      return;
+    }
+
+    const editor = inkdrop.getActiveEditor();
+    if (!editor) return;
+
+    const line = this.getVisibleEditorLine(editor);
+    if (line != null && line !== this.paneState.lastLine) {
+      this.paneState.lastLine = line;
+      this.updateSection(line);
+    }
+  }, 16);
   handleJumpToPrev = () => {
     // for preview mode
     if (this.paneState.isPreview) {

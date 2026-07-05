@@ -32,6 +32,7 @@ export class PaneState {
   lastRenderCurrentHeader: any = null;
   // event listener references for proper cleanup
   previewElement: Element | null = null;
+  editorScrollElement: Element | null = null;
   // DOM element cache for performance
   cachedPaneElement: HTMLElement | null = null;
   cachedEditorElement: Element | null = null;
@@ -64,6 +65,7 @@ export class PaneState {
     this.lastRenderCurrentHeader = null;
     // event listener references
     this.previewElement = null;
+    this.editorScrollElement = null;
     // DOM element cache
     this.cachedPaneElement = null;
     this.cachedEditorElement = null;
