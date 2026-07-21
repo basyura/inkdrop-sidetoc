@@ -15,6 +15,7 @@ import {
   WidthChangeMode,
 } from "./types";
 const $ = (query: string) => document.querySelector(query);
+const headerJumpScrollPriorityMs = 100;
 
 declare var inkdrop: Inkdrop;
 
@@ -58,8 +59,13 @@ export default class SideTocPane extends React.Component<Props, State> {
   private dispatchTarget: any | null = null;
   private originalDispatch: ((...args: any[]) => any) | null = null;
   private maxRebindAttempts = 100;
+  private lastHeaderJumpAt = Number.NEGATIVE_INFINITY;
 
-  private moveEditorToLine(line: number, scrollIntoView: boolean = true): void {
+  private moveEditorToLine(
+    line: number,
+    scrollIntoView: boolean = true,
+    prioritizeCursorOnScroll: boolean = false
+  ): void {
     const editor = inkdrop.getActiveEditor();
     if (!editor) return;
 
@@ -68,6 +74,9 @@ export default class SideTocPane extends React.Component<Props, State> {
       const lineCount = doc.lines ?? this.state.len;
       const lineNumber = Math.min(Math.max(line + 1, 1), lineCount);
       const pos = doc.line(lineNumber).from;
+      if (prioritizeCursorOnScroll) {
+        this.lastHeaderJumpAt = performance.now();
+      }
       view.dispatch({
         selection: { anchor: pos },
         scrollIntoView,
@@ -623,6 +632,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     if (this.paneState.isPreview) {
       return;
     }
+    if (performance.now() - this.lastHeaderJumpAt < headerJumpScrollPriorityMs) {
+      return;
+    }
 
     const editor = inkdrop.getActiveEditor();
     if (!editor) return;
@@ -670,7 +682,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     const header = this.getCurrentHeader(line);
     const prev = this.getPrevHeader(header, line);
     if (prev != null) {
-      this.moveEditorToLine(prev.rowStart);
+      this.moveEditorToLine(prev.rowStart, true, true);
     }
   };
   /*
@@ -710,7 +722,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     const header = this.getCurrentHeader(line);
     const next = this.getNextHeader(header);
     if (next != null) {
-      this.moveEditorToLine(next.rowStart);
+      this.moveEditorToLine(next.rowStart, true, true);
     }
   };
   /*
