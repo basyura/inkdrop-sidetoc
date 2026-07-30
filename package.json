@@ -11,7 +11,9 @@
   },
   "scripts": {
     "build": "tsc",
-    "build-watch": "tsc --watch"
+    "build-watch": "tsc --watch",
+    "test": "vitest run",
+    "test-watch": "vitest"
   },
   "dependencies": {
     "flux": "^4.0.3",
@@ -20,12 +22,13 @@
   "devDependencies": {
     "@types/event-kit": "^2.4.1",
     "@types/flux": "^3.1.11",
-    "@types/node": "^14.18.21",
+    "@types/node": "^20.19.43",
     "@types/react": "^16.14.26",
     "@types/react-codemirror": "^1.0.7",
     "@types/react-dom": "^16.9.16",
     "event-kit": "^2.5.3",
     "react": "^16.14.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.10"
   }
 }

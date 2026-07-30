@@ -23,8 +23,10 @@ Key modules:
 - `npm install`: install local dependencies
 - `npm run build`: compile `src/` into `lib/` with `tsc`
 - `npm run build-watch`: rebuild on change during development
+- `npm test`: run the Vitest suite once
+- `npm run test-watch`: rerun related Vitest tests while files change
 
-There is no dedicated test runner configured in `package.json` today. Use `npm run build` as the minimum validation step before opening a pull request.
+Vitest 4 and its Vite dependency require Node.js `^20.19.0 || >=22.12.0`.
 
 ## Coding Style & Naming Conventions
 
@@ -34,13 +36,14 @@ Formatting/tooling in this repo is partially historical: `.prettierrc` and `.esl
 
 ## Testing Guidelines
 
-Because there is no automated test suite yet, validate changes by:
+Unit tests use Vitest and live under `test/`. Validate changes by:
 
+- running `npm test`
 - running `npm run build`
 - manually loading the plugin in Inkdrop
 - checking TOC rendering, current-heading highlight, and keybindings for affected flows
 
-If you add tests in the future, place them near the relevant source module or under a dedicated `test/` directory and use clear names such as `ripper.test.ts`.
+Place new tests under `test/` and use clear names such as `ripper.test.ts`.
 
 ## Commit & Pull Request Guidelines
 
