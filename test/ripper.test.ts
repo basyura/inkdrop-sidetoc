@@ -104,4 +104,14 @@ describe("parse", () => {
     expect(before.headers[0].str).toBe("変更前");
     expect(after.headers[0].str).toBe("変更後");
   });
+
+  it("長い本文の途中が変わった場合もキャッシュを更新する", () => {
+    const beforeBody = "x".repeat(120) + "\n# A\n" + "y".repeat(875);
+    const afterBody = "x".repeat(120) + "\n# B\n" + "y".repeat(875);
+
+    expect(beforeBody).toHaveLength(1000);
+    expect(afterBody).toHaveLength(1000);
+    expect(parse(beforeBody).headers[0].str).toBe("A");
+    expect(parse(afterBody).headers[0].str).toBe("B");
+  });
 });

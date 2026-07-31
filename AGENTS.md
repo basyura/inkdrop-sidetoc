@@ -18,6 +18,12 @@ Key modules:
 - `src/dispatcher.ts`, `src/pane-state.ts`, `src/settings.ts`: state and behavior
 - `src/ripper.ts`: heading extraction logic
 
+## Specifications
+
+Before changing source files, review the relevant documents under `docs/specs/` and ensure
+the implementation remains consistent with them. When a source change alters documented
+behavior, update the corresponding specification in the same change.
+
 ## Build, Test, and Development Commands
 
 - `npm install`: install local dependencies

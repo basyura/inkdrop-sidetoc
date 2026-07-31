@@ -7,8 +7,7 @@ const headerCache = new Map<number, ParseResult>();
 let lastBodyHash: number | null = null;
 
 /*
- * Create an optimized hash of the content for cache invalidation
- * Uses sampling strategy for large files to avoid O(n) complexity on every character
+ * Create a hash of the entire content for cache invalidation
  */
 function hashCode(str: string): number {
   const length = str.length;
@@ -16,37 +15,9 @@ function hashCode(str: string): number {
 
   let hash = length; // Start with length as base
 
-  // For small strings (< 1000 chars), hash every character
-  if (length < 1000) {
-    for (let i = 0; i < length; i++) {
-      hash = (hash << 5) - hash + str.charCodeAt(i);
-      hash = hash & hash; // Convert to 32bit integer
-    }
-  } else {
-    // For large strings, sample strategically:
-    // - First and last 100 characters (header/footer detection)
-    // - Every 50th character in the middle (content changes)
-    // - Total sample size: ~200-400 characters vs entire file
-
-    // Hash first 100 characters
-    const start = Math.min(100, length);
-    for (let i = 0; i < start; i++) {
-      hash = (hash << 5) - hash + str.charCodeAt(i);
-      hash = hash & hash;
-    }
-
-    // Hash last 100 characters
-    const end = Math.max(length - 100, start);
-    for (let i = end; i < length; i++) {
-      hash = (hash << 5) - hash + str.charCodeAt(i);
-      hash = hash & hash;
-    }
-
-    // Sample middle section every 50 characters
-    for (let i = start; i < end; i += 50) {
-      hash = (hash << 5) - hash + str.charCodeAt(i);
-      hash = hash & hash;
-    }
+  for (let i = 0; i < length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash = hash & hash; // Convert to 32bit integer
   }
 
   return hash;
