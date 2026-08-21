@@ -1,5 +1,10 @@
 # Inkdrop SideToc Plugin
 
+> [!WARNING]
+> Starting with Inkdrop v6.1.1, the `ctrl-l` key is assigned to the `.cm-editor .cm-scroller` element, so the `ctrl-l` binding on `body` no longer works.
+> The `ctrl-l` binding on `body` will be removed in the next version of sidetoc.
+> To configure the same behavior, see the Keybindings section for the `keymap.json` configuration.
+
 It adds an outline view on the right side of the editor and preview.
 
 https://my.inkdrop.app/plugins/sidetoc
@@ -34,24 +39,24 @@ ipm install sidetoc
 | sidetoc:width-reset    | reset width.                      |
 | sidetoc:wraptext-toggle| Toggle wrap/nowrap overflow text. |
 
+keymap.json
 
+```json
+".cm-editor .cm-scroller": {
+  "ctrl-v": "core:paste",
+  "ctrl-l": "sidetoc:sidetoc-toggle",
+  "ctrl-n": "sidetoc:jump-next",
+  "ctrl-p": "sidetoc:jump-prev",
+  "ctrl-L": "sidetoc:width-decrease",
+  "ctrl-K": "sidetoc:width-increase",
+  "ctrl-0": "sidetoc:width-reset",
+  "ctrl-t": "sidetoc:wraptext-toggle"
+},
 
-
-keymap.cson
-
-```cson
-'body':
-    'ctrl-l': 'sidetoc:sidetoc-toggle'
-    'ctrl-n': 'sidetoc:jump-next'
-    'ctrl-p': 'sidetoc:jump-prev'
-    'ctrl-L': 'sidetoc:width-decrease'
-    'ctrl-K': 'sidetoc:width-increase'
-    'ctrl-0': 'sidetoc:width-reset'
-    'ctrl-t': 'sidetoc:wraptext-toggle'
-
-'.mde-preview':
-    'ctrl-n': 'sidetoc:jump-next'
-    'ctrl-p': 'sidetoc:jump-prev'
+".mde-preview-container": {
+  "ctrl-n": "sidetoc:jump-next",
+  "ctrl-p": "sidetoc:jump-prev",
+}
 ```
 
 ## Settings
