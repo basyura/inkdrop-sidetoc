@@ -14,6 +14,9 @@ import {
   State,
   WidthChangeMode,
 } from "./types";
+/*
+ * セレクターに一致する最初の DOM 要素を取得する。
+ */
 const $ = (query: string) => document.querySelector(query);
 const cursorScrollPriorityMs = 100;
 
@@ -27,6 +30,9 @@ interface HeaderListItemProps {
   isCurrent: boolean;
 }
 
+/*
+ * 見出し項目を描画し、現在見出しへの参照とクリック処理を設定する。
+ */
 const HeaderListItem = React.memo(
   React.forwardRef<HTMLLIElement, HeaderListItemProps>(
     ({ header, style, onClick, isCurrent }, ref) => (
@@ -39,6 +45,9 @@ const HeaderListItem = React.memo(
       </li>
     )
   ),
+  /*
+   * 現在見出しかどうかと見出しの参照を比較し、再描画を省略できるか判定する。
+   */
   (prevProps, nextProps) => {
     // Only prevent re-render if header content is the same AND isCurrent status unchanged
     // Always re-render when isCurrent changes to update background color
@@ -61,6 +70,10 @@ export default class SideTocPane extends React.Component<Props, State> {
   private maxRebindAttempts = 100;
   private lastCursorMoveAt = Number.NEGATIVE_INFINITY;
 
+  /*
+   * 指定した 0 始まりの行へカーソルを移動し、フォーカスと現在見出しを更新する。
+   * 必要に応じてスクロールし、その直後はカーソル位置による見出し判定を優先する。
+   */
   private moveEditorToLine(
     line: number,
     scrollIntoView: boolean = true,
@@ -86,6 +99,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
   }
 
+  /*
+   * アクティブエディターのカーソル行を 0 始まりで取得する。
+   */
   private getCurrentEditorLine(): number | null {
     const editor = inkdrop.getActiveEditor();
     if (!editor) return null;
@@ -99,9 +115,13 @@ export default class SideTocPane extends React.Component<Props, State> {
     return doc.lineAt(head).number - 1;
   }
 
+  /*
+   * 連続した呼び出しをまとめ、最後の呼び出しから指定時間後に関数を実行する。
+   */
   private debounce = <T extends (...args: any[]) => void>(func: T, wait: number): T => {
     let timeout: NodeJS.Timeout | undefined;
     return ((...args: Parameters<T>) => {
+      // 待機後にタイマーを解除し、最後に受け取った引数で対象の関数を実行する。
       const later = () => {
         clearTimeout(timeout);
         func(...args);
@@ -111,6 +131,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     }) as T;
   };
 
+  /*
+   * 最初の呼び出しを実行し、指定時間が経過するまで後続の呼び出しを抑制する。
+   */
   private throttle = <T extends (...args: any[]) => void>(func: T, limit: number): T => {
     let inThrottle: boolean;
     return ((...args: Parameters<T>) => {
@@ -122,7 +145,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     }) as T;
   };
 
-  // DOM element cache methods for performance
+  /*
+   * 目次ペインの DOM 要素を取得し、再利用できるようにキャッシュする。
+   */
   private getPaneElement(): HTMLElement | null {
     if (!this.paneState.cachedPaneElement) {
       this.paneState.cachedPaneElement = document.querySelector<HTMLElement>(
@@ -132,6 +157,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     return this.paneState.cachedPaneElement;
   }
 
+  /*
+   * エディターの DOM 要素を取得し、再利用できるようにキャッシュする。
+   */
   private getEditorElement(): Element | null {
     if (!this.paneState.cachedEditorElement) {
       this.paneState.cachedEditorElement = document.querySelector(".editor");
@@ -139,11 +167,17 @@ export default class SideTocPane extends React.Component<Props, State> {
     return this.paneState.cachedEditorElement;
   }
 
+  /*
+   * 目次ペインとエディターの DOM 要素キャッシュを破棄する。
+   */
   private invalidateElementCache(): void {
     this.paneState.cachedPaneElement = null;
     this.paneState.cachedEditorElement = null;
   }
 
+  /*
+   * エディターのビューと現在の文書への参照を取得する。
+   */
   private getEditorRefs(editor: Editor) {
     const view = editor as any;
     const doc = view?.state?.doc ?? null;
@@ -151,26 +185,41 @@ export default class SideTocPane extends React.Component<Props, State> {
     return { view, doc };
   }
 
+  /*
+   * エディターの本文を取得し、取得できない場合は編集中ノートの本文を返す。
+   */
   private getEditorBody(editor: Editor): string {
     const { doc } = this.getEditorRefs(editor);
     return doc?.toString?.() ?? this.props.editingNote?.body ?? "";
   }
 
+  /*
+   * 文書の変更検出に使用するエディター文書への参照を取得する。
+   */
   private getEditorDoc(editor: Editor): unknown {
     return this.getEditorRefs(editor).doc;
   }
 
+  /*
+   * 文書の行数を取得し、取得できない場合は本文の改行から算出する。
+   */
   private getEditorLineCount(editor: Editor): number {
     const { view } = this.getEditorRefs(editor);
     return view?.state?.doc?.lines ?? this.getEditorBody(editor).split("\n").length;
   }
 
+  /*
+   * エディターのカーソルがある行の文字列を取得する。
+   */
   private getCurrentLineText(editor: Editor): string {
     const { view } = this.getEditorRefs(editor);
     const head = view?.state?.selection?.main?.head;
     return typeof head === "number" ? view?.state?.doc?.lineAt(head)?.text ?? "" : "";
   }
 
+  /*
+   * エディターのスクロール要素を取得し、必要に応じて DOM 内を検索する。
+   */
   private getEditorScrollElement(editor: Editor, editorEle: Element | null): Element | null {
     const { view } = this.getEditorRefs(editor);
     const scrollDOM = view?.scrollDOM;
@@ -181,6 +230,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     return editorEle?.querySelector(".cm-scroller") ?? null;
   }
 
+  /*
+   * スクロール位置とカーソル余白から表示上端の行を求め、取得できない場合はカーソル行を返す。
+   */
   private getVisibleEditorLine(editor: Editor): number | null {
     const { view, doc } = this.getEditorRefs(editor);
     const scrollDOM = this.paneState.editorScrollElement as HTMLElement | null;
@@ -196,6 +248,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     return this.getCurrentEditorLine();
   }
 
+  /*
+   * エディターの dispatch をラップし、文書変更とカーソル移動を目次へ反映する。
+   */
   private installDocumentChangeListener(editor: Editor): void {
     const { view } = this.getEditorRefs(editor);
     const target = view;
@@ -228,6 +283,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     };
   }
 
+  /*
+   * ラップした dispatch を元に戻し、変更監視用の参照を解放する。
+   */
   private uninstallDocumentChangeListener(): void {
     if (this.dispatchTarget && this.originalDispatch) {
       this.dispatchTarget.dispatch = this.originalDispatch;
@@ -237,7 +295,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.originalDispatch = null;
   }
   /*
-   *
+   * 初期状態とアクション・エディターの購読を設定し、エディターへの接続を開始する。
    */
   componentWillMount() {
     // state of this component
@@ -269,7 +327,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
   }
   /*
-   *
+   * ノート切り替えを処理し、それ以外の更新では現在見出しまで目次をスクロールする。
    */
   componentDidUpdate(prevProps: Props) {
     if (prevProps.editingNote?._id !== this.props.editingNote?._id) {
@@ -288,7 +346,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
   }
   /*
-   *
+   * アクション登録、再接続タイマー、エディター購読、イベント監視を解除する。
    */
   componentWillUnmount() {
     // unhandle event
@@ -305,7 +363,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.detachEvents();
   }
   /*
-   *
+   * 受信したアクションに応じて表示、見出し移動、幅、折り返しなどを操作する。
    */
   dispatchAction(action: DispatchAction) {
     switch (action.type) {
@@ -342,7 +400,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
   }
   /*
-   * Optimized render with better caching strategy
+   * 表示に関わる状態が変わった場合に目次を再生成し、描画結果をキャッシュする。
    */
   render() {
     // Check if we need to regenerate content
@@ -357,7 +415,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   }
 
   /*
-   * Check if content should be updated
+   * 見出し一覧、表示状態、現在見出しを比較し、目次の再生成が必要か判定する。
    */
   private shouldUpdateContent(): boolean {
     return (
@@ -367,7 +425,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     );
   }
   /*
-   *
+   * 表示設定と見出し一覧から、目次ペインと各見出し項目の描画内容を生成する。
    */
   createContent() {
     const isShowPane = this.isShowPane();
@@ -419,7 +477,8 @@ export default class SideTocPane extends React.Component<Props, State> {
   }
   /*----- private -----*/
   /*
-   *
+   * エディターの文書変更、スクロール、プレビュー更新、テーマ変更、ペインのサイズ変更を監視する。
+   * エディターが未準備の場合は再接続を予約する。
    */
   attachEvents(editor: Editor): boolean {
     if (!editor?.dispatch || !editor?.state?.doc) {
@@ -491,7 +550,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     return true;
   }
   /*
-   *
+   * 文書変更の監視、各 Observer、スクロールイベントを解除し、接続先を解放する。
    */
   detachEvents(editor?: Editor) {
     this.uninstallDocumentChangeListener();
@@ -515,7 +574,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.paneState.currentEditor = null;
   }
   /*
-   *
+   * アクティブエディターの本文を解析し、見出し一覧と行数を追加の状態とともに反映する。
    */
   updateState = (option = {}) => {
     const editor = inkdrop.getActiveEditor();
@@ -536,6 +595,10 @@ export default class SideTocPane extends React.Component<Props, State> {
     return newState;
   };
 
+  /*
+   * 指定時間後にアクティブエディターへ再接続し、目次と現在見出しを更新する。
+   * エディターがない場合は試行上限まで再接続を予約する。
+   */
   rebindActiveEditor = (delay = 0) => {
     if (this.paneState.rebindAttempts >= this.maxRebindAttempts) {
       return;
@@ -569,6 +632,9 @@ export default class SideTocPane extends React.Component<Props, State> {
     }, delay);
   };
 
+  /*
+   * ノート切り替え時にキャッシュと接続状態を初期化し、目次更新と再接続を行う。
+   */
   handleNoteSwitch = () => {
     this.invalidateElementCache();
     this.detachEvents();
@@ -587,7 +653,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.rebindActiveEditor();
   };
   /*
-   *
+   * 指定行に対応する見出しを求め、現在見出しが変わった場合に状態へ反映する。
    */
   updateSection(line: number): void {
     const header = this.getCurrentHeader(line);
@@ -596,7 +662,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
   }
   /*
-   *
+   * 目次ペインの表示状態を切り替え、エディターの再描画を要求する。
    */
   handleVisibility = () => {
     this.commit({ visibility: !this.state.visibility });
@@ -605,7 +671,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     }, 10);
   };
   /*
-   * Handle editor updates with debouncing
+   * 文書変更を 200 ms のデバウンスで処理し、ノート切り替えや見出し行・行数の変更を反映する。
    */
   handleEditorUpdate = this.debounce(() => {
     if (this.props.editingNote._id != this.paneState.noteId) {
@@ -627,7 +693,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.updateState();
   }, 200); // 200ms debounce
   /*
-   * Handle editor scrolling and refresh highlight section.
+   * 編集モードのスクロールを 16 ms 間隔で処理し、表示上端の行に対応する見出しを更新する。
+   * カーソル移動直後はカーソル位置による判定を優先する。
    */
   handleEditorScroll = this.throttle((_: Event) => {
     if (this.paneState.isPreview) {
@@ -646,6 +713,9 @@ export default class SideTocPane extends React.Component<Props, State> {
       this.updateSection(line);
     }
   }, 16);
+  /*
+   * 編集モードでは現在または前の見出しへ移動し、プレビューでは前方の見出し位置へスクロールする。
+   */
   handleJumpToPrev = () => {
     // for preview mode
     if (this.paneState.isPreview) {
@@ -687,7 +757,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
   };
   /*
-   *
+   * 編集モードでは次の見出しへ移動し、プレビューでは次の見出し位置へスクロールする。
    */
   handleJumpToNext = () => {
     // for preview mode
@@ -727,7 +797,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
   };
   /*
-   *
+   * 表示モードを確認し、プレビューモードの場合は見出し要素の一覧を更新する。
    */
   handlePreviewUpdate = (editorEle: Element | null) => {
     if (editorEle == null) {
@@ -750,7 +820,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   };
 
   /*
-   * Handle preview scroll with throttling.
+   * プレビューのスクロールを 16 ms 間隔で処理し、現在見出しとエディターのカーソル位置を同期する。
    */
   handlePreviewScroll = this.throttle((_: Event) => {
     // skip editor mode
@@ -796,7 +866,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     }
   }, 16); // 60fps throttling
   /*
-   *
+   * 目次が表示中の場合に DOM 要素キャッシュを破棄し、サイズ変更を描画へ反映する。
    */
   handleWindowResize = () => {
     // Handle size changed.
@@ -809,7 +879,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.updateState();
   };
   /*
-   * scroll to header
+   * クリックした見出しへエディターのカーソルまたはプレビューのスクロール位置を移動する。
    */
   handleClick = (header: HeaderItem) => {
     // for preview mode
@@ -828,18 +898,18 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.moveEditorToLine(header.rowStart);
   };
   /*
-   *
+   * 指定された増加・減少・リセット操作をペイン幅の設定へ反映する。
    */
   handleChangeWidth = (mode: WidthChangeMode) => Settings.changeCurrentWidth(mode);
   /*
-   *
+   * 見出しの折り返し設定を切り替え、コンポーネントの状態更新を要求する。
    */
   handleToggleTextwrap = () => {
     Settings.toggleTextWrap();
     this.commit({});
   };
   /*
-   * convert to style with caching for object pooling
+   * 見出しのスタイルと現在見出しの判定結果をキャッシュし、保持件数を 100 件以内に保つ。
    */
   toStyleCached = (header: HeaderItem, current: string) => {
     // Generate cache key based on style-affecting properties
@@ -871,7 +941,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   };
 
   /*
-   * convert to style (original implementation)
+   * 見出しレベルに応じた左余白と、現在見出しの強調表示に使うスタイルを生成する。
    */
   toStyle = (header: HeaderItem, current: string) => {
     let style = {
@@ -899,7 +969,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     return { style, isCurrent };
   };
   /*
-   *
+   * 見出しの参照またはレベル・番号・開始行・文字列を比較し、同じ見出しか判定する。
    */
   isSameHeader(h1: HeaderItem | null, h2: HeaderItem | null): boolean {
     if (h1 == null) {
@@ -922,7 +992,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     return false;
   }
   /*
-   * Binary search optimized header lookup - O(log n) instead of O(n)
+   * 指定行を範囲内に含む見出しを二分探索で取得する。
    */
   getCurrentHeader(line: number): HeaderItem | null {
     const headers = this.state.headers;
@@ -948,7 +1018,8 @@ export default class SideTocPane extends React.Component<Props, State> {
     return null;
   }
   /*
-   *
+   * カーソルが見出し行にある場合は前の見出しを、それ以外は現在の見出しを返す。
+   * 最初の見出しでは同じ見出しを返す。
    */
   getPrevHeader(header: HeaderItem | null, line: number): HeaderItem | null {
     if (header == null) {
@@ -971,7 +1042,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     return null;
   }
   /*
-   *
+   * 現在見出しの次の見出しを返し、現在見出しがない場合は最初の見出しを返す。
    */
   getNextHeader(header: HeaderItem | null) {
     if (header == null) {
@@ -986,7 +1057,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     return null;
   }
   /*
-   * Optimized commit with selective content invalidation
+   * 更新対象の状態に応じて描画・スタイルのキャッシュを破棄し、React の状態を更新する。
    */
   commit(state: any): void {
     // Only invalidate content if headers, visibility, or currentHeader changed
@@ -1010,7 +1081,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     this.setState(state);
   }
   /*
-   *
+   * 表示状態、見出しの有無、見出しがない場合の表示設定からペインの表示可否を判定する。
    */
   isShowPane(): boolean {
     if (!this.state.visibility) {
@@ -1024,7 +1095,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     return this.state.headers.length != 0;
   }
   /*
-   *
+   * デバッグログ用の呼び出し口を提供する。現在はログ出力を無効にしている。
    */
   log(_: () => string) {
     // console.log(`sidetoc: ${_()}`);
