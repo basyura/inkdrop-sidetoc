@@ -15,7 +15,7 @@ import {
   WidthChangeMode,
 } from "./types";
 const $ = (query: string) => document.querySelector(query);
-const headerJumpScrollPriorityMs = 100;
+const cursorScrollPriorityMs = 100;
 
 declare var inkdrop: Inkdrop;
 
@@ -59,7 +59,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   private dispatchTarget: any | null = null;
   private originalDispatch: ((...args: any[]) => any) | null = null;
   private maxRebindAttempts = 100;
-  private lastHeaderJumpAt = Number.NEGATIVE_INFINITY;
+  private lastCursorMoveAt = Number.NEGATIVE_INFINITY;
 
   private moveEditorToLine(
     line: number,
@@ -75,7 +75,7 @@ export default class SideTocPane extends React.Component<Props, State> {
       const lineNumber = Math.min(Math.max(line + 1, 1), lineCount);
       const pos = doc.line(lineNumber).from;
       if (prioritizeCursorOnScroll) {
-        this.lastHeaderJumpAt = performance.now();
+        this.lastCursorMoveAt = performance.now();
       }
       view.dispatch({
         selection: { anchor: pos },
@@ -219,6 +219,7 @@ export default class SideTocPane extends React.Component<Props, State> {
       if (beforeHead !== afterHead) {
         const line = this.getCurrentEditorLine();
         if (line != null) {
+          this.lastCursorMoveAt = performance.now();
           this.updateSection(line);
         }
       }
@@ -632,7 +633,7 @@ export default class SideTocPane extends React.Component<Props, State> {
     if (this.paneState.isPreview) {
       return;
     }
-    if (performance.now() - this.lastHeaderJumpAt < headerJumpScrollPriorityMs) {
+    if (performance.now() - this.lastCursorMoveAt < cursorScrollPriorityMs) {
       return;
     }
 

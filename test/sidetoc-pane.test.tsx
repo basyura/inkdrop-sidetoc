@@ -172,10 +172,45 @@ describe("編集モードの見出し移動", () => {
 });
 
 describe("編集モードのスクロール追従", () => {
+  it.each([
+    { moves: [1000], scrollAt: 1099, expected: headers[1] },
+    { moves: [1000], scrollAt: 1100, expected: headers[0] },
+    { moves: [1000, 1080], scrollAt: 1179, expected: headers[1] },
+    { moves: [1000, 1080], scrollAt: 1180, expected: headers[0] },
+  ])(
+    "カーソル移動 $moves 後の $scrollAt ms のスクロールで優先順位を守る",
+    ({ moves, scrollAt, expected }) => {
+      const pane = createPane();
+      const doc = { lineAt: (head: number) => ({ number: head + 1 }) };
+      activeEditor = {
+        state: { doc, selection: { main: { head: 2 } } },
+        dispatch: (head: number) => {
+          activeEditor.state.selection.main.head = head;
+        },
+      };
+      vi.spyOn(pane as any, "commit").mockImplementation((patch: Partial<State>) => {
+        Object.assign(pane.state, patch);
+      });
+      vi.spyOn(pane as any, "getVisibleEditorLine").mockReturnValue(headers[0].rowStart);
+      const now = vi.spyOn(performance, "now");
+      (pane as any).installDocumentChangeListener(activeEditor);
+
+      moves.forEach((time, index) => {
+        now.mockReturnValue(time);
+        activeEditor.dispatch(3 + index);
+        expect(pane.state.currentHeader).toBe(headers[1]);
+      });
+      now.mockReturnValue(scrollAt);
+      pane.handleEditorScroll(new Event("scroll"));
+
+      expect(pane.state.currentHeader).toBe(expected);
+    }
+  );
+
   it("見出し移動から 99 ms 後のスクロールでは現在見出しを更新しない", () => {
     const pane = createPane();
     activeEditor = {};
-    (pane as any).lastHeaderJumpAt = 901;
+    (pane as any).lastCursorMoveAt = 901;
     vi.spyOn(performance, "now").mockReturnValue(1000);
     const getVisibleEditorLine = vi.spyOn(pane as any, "getVisibleEditorLine");
     const updateSection = vi.spyOn(pane, "updateSection");
@@ -189,7 +224,7 @@ describe("編集モードのスクロール追従", () => {
   it("見出し移動から 100 ms 後のスクロールでは現在見出しを更新する", () => {
     const pane = createPane();
     activeEditor = {};
-    (pane as any).lastHeaderJumpAt = 900;
+    (pane as any).lastCursorMoveAt = 900;
     vi.spyOn(performance, "now").mockReturnValue(1000);
     vi.spyOn(pane as any, "getVisibleEditorLine").mockReturnValue(headers[1].rowStart);
     const updateSection = vi.spyOn(pane, "updateSection").mockImplementation(() => undefined);
