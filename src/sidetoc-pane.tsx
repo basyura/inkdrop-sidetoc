@@ -36,11 +36,7 @@ interface HeaderListItemProps {
 const HeaderListItem = React.memo(
   React.forwardRef<HTMLLIElement, HeaderListItemProps>(
     ({ header, style, onClick, isCurrent }, ref) => (
-      <li
-        style={style}
-        onClick={() => onClick(header)}
-        ref={isCurrent ? ref : null}
-      >
+      <li style={style} onClick={() => onClick(header)} ref={isCurrent ? ref : null}>
         {header.str}
       </li>
     )
@@ -214,7 +210,7 @@ export default class SideTocPane extends React.Component<Props, State> {
   private getCurrentLineText(editor: Editor): string {
     const { view } = this.getEditorRefs(editor);
     const head = view?.state?.selection?.main?.head;
-    return typeof head === "number" ? view?.state?.doc?.lineAt(head)?.text ?? "" : "";
+    return typeof head === "number" ? (view?.state?.doc?.lineAt(head)?.text ?? "") : "";
   }
 
   /*
